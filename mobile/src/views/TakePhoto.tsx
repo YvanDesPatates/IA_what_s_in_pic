@@ -1,22 +1,21 @@
 import React, {useLayoutEffect, useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {Image, StyleSheet, Text, View} from 'react-native';
 import Layout from '../components/Layout/Layout';
 import LayoutTop from '../components/Layout/LayoutTop';
 import LayoutBackButton from '../components/Layout/LayoutBackButton';
 import LayoutContainer from '../components/Layout/LayoutContainer';
 import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import {
-    Camera,
+    Camera, PhotoFile,
     useCameraDevice,
     useCameraPermission,
 } from 'react-native-vision-camera';
 import Callout from '../components/Callout';
 import Button from '../components/Button';
 import {useMutation} from '@tanstack/react-query';
-import {getProductById} from '../services/product/product.service';
 import {useDispatch, useSelector} from 'react-redux';
 import {selectUser} from '../stores/user/userSlice';
-import {cartAdded} from '../stores/cart/cartSlice';
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 type TakePhotoProps = {
     navigation: BottomTabNavigationProp<any>;
@@ -38,6 +37,23 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
     },
+    takePhotoButton: {
+        position: 'absolute',
+        bottom: 10,
+        left: '50%',
+        transform: [{translateX: -35}],
+        zIndex: 100,
+    },
+    photoTakenCross: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        zIndex: 100,
+    },
+    doubleBoutton: {
+        flexDirection: 'row',
+        gap: 20,
+    },
 });
 
 const TakePhoto = ({navigation}: TakePhotoProps) => {
@@ -47,6 +63,9 @@ const TakePhoto = ({navigation}: TakePhotoProps) => {
     const device = useCameraDevice('back');
     const cameraRef = React.useRef<Camera>(null);
     const [scannedCodes, setScannedCodes] = useState<Set<string>>(new Set());
+
+    const [takenPhoto , setTakenPhoto] = React.useState<string | ArrayBuffer>();
+
 
     const {mutate: productsMutation} = useMutation({
         mutationFn: (data: {token: string; image_data: any[]}) => {
@@ -59,34 +78,30 @@ const TakePhoto = ({navigation}: TakePhotoProps) => {
             // return Promise.all(products);
             return Promise.all([]);
         },
-        onSuccess: products => {
-            // products.forEach(product => {
-            //     if (!product) return;
-            //     if (!product.id) return;
-            //     dispatch(cartAdded(product));
-            // });
-            // setScannedCodes(new Set());
-            // if (products.length === 1) {
-            //     Alert.alert(
-            //         'Product added',
-            //         'The product has been added to your cart.',
-            //     );
-            // } else if (products.length > 1) {
-            //     Alert.alert(
-            //         'Products added',
-            //         'The products have been added to your cart.',
-            //     );
-            // }
+        onSuccess:  data => {
+            console.log(data);
         },
         onError: error => {
             console.log(error);
         },
     });
 
+    const fileReader = new FileReader();
+    fileReader.onload = function() {
+        const base64 = fileReader.result;
+        setTakenPhoto(base64);
+    }
+
     const takePhoto = () => {
-        cameraRef.current?.takePhoto().then(photo => {
-            // compress the photo to webp
-            // productsMutation();
+        cameraRef.current?.takePhoto({
+            enableShutterSound:false,
+            flash:"on", qualityPrioritization:"quality",
+            enableAutoStabilization:true,
+            enableAutoDistortionCorrection:true,
+            enableAutoRedEyeReduction:true}).then(async photo => {
+            const result = await fetch(`file://${photo.path}`)
+            const data = await result.blob();
+            fileReader.readAsDataURL(data);
         });
     };
 
@@ -129,19 +144,40 @@ const TakePhoto = ({navigation}: TakePhotoProps) => {
                         {device && (
                             <>
                                 <View style={styles.cameraView}>
-                                    <Camera
-                                        photo={true}
-                                        zoom={device.neutralZoom}
-                                        ref={cameraRef}
-                                        style={styles.camera}
-                                        device={device}
-                                        isActive={true}
-                                    />
+                                    {takenPhoto ? (
+                                        <>
+                                            <Ionicons style={styles.photoTakenCross} name={"close"} size={40} color={"white"} onPress={() => setTakenPhoto(undefined)}/>
+                                            <Image
+                                                style={styles.camera}
+                                                source={{ uri: takenPhoto }}
+                                            />
+
+                                        </>
+
+                                    ) : (
+                                        <>
+                                            <Camera
+                                                photo={true}
+                                                zoom={device.neutralZoom}
+                                                ref={cameraRef}
+                                                style={styles.camera}
+                                                device={device}
+                                                isActive={true}
+                                                enableZoomGesture={true}
+                                            />
+                                            <Ionicons style={styles.takePhotoButton} name={"ellipse"} size={70} color={"white"} onPress={takePhoto}/>
+                                        </>
+                                    )}
                                 </View>
                             </>
                         )}
-
-                        <Button content={'Take a photo'} onPress={takePhoto} />
+                        {takenPhoto ? (
+                            <>
+                                <Button onPress={() => {console.log('zboub')}} content="Retake" />
+                                <Button onPress={() => {console.log('zboub')}} content="Validate" />
+                            </>
+                        ) : null
+                        }
                     </View>
                 )}
             </LayoutContainer>
@@ -150,3 +186,4 @@ const TakePhoto = ({navigation}: TakePhotoProps) => {
 };
 
 export default TakePhoto;
+
