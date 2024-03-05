@@ -12,6 +12,7 @@ type ButtonProps = {
     disableBordersRadius?: Direction[];
     loading?: boolean;
     disabled?: boolean;
+    flex?: boolean;
 };
 
 const styles = StyleSheet.create({
@@ -38,6 +39,7 @@ const Button = ({
     disableBordersRadius,
     loading,
     disabled,
+    flex,
 }: ButtonProps) => {
     return (
         <TouchableOpacity
@@ -57,6 +59,7 @@ const Button = ({
                 ...(disableBordersRadius?.includes('bottomRight')
                     ? {borderBottomRightRadius: 0}
                     : {}),
+                ...(flex ? {flex: 1} : {}),
             }}
             // TODO: Check mutli-presses
             onPress={onPress}>
