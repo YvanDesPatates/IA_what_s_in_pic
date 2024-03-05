@@ -1,0 +1,8 @@
+# dependencies
+/node_modules/
+# config files of Jetbrain's IDE
+/.idea/
+# output files for production, transpiled ts files
+/dist/
+# data repository for local database
+/data/
