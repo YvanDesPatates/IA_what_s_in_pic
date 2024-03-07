@@ -1,0 +1,28 @@
+@startuml
+class Account{
+id: number
+name: string
+mdp: string
+}
+
+class Img{
+id: number
+name: string
+date: date
+accountId: number
+albumIds: number[]
+tags: string[]
+}
+
+class Album{
+id: number
+name: string
+creatorAccountId: number
+InvitedAccountsIds: number[]
+}
+
+Img -up->"accountId" Account
+Album "creatorAccountId"-> Account
+Album "InvitedAccountsIds"-> Account
+Img ->"albumIds" Album
+@enduml

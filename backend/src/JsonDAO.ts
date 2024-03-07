@@ -40,14 +40,15 @@ export abstract class JsonDAO<T extends DBModelInterface> implements DAOInterfac
     }
 
     public create(newElement: T): T {
-        let elements = this.getAll();
+        const elements = this.getAll();
+        console.log(elements);
         elements.push(newElement);
         fs.writeFileSync(this.getFilePath(), JSON.stringify(elements));
         return newElement;
     }
 
     public delete(id: string): boolean {
-        let elements = this.getAll();
+        const elements = this.getAll();
         const element = this.searchElementThrowExceptionIfNotFound(elements, id);
         if (!element){ return false; }
 
@@ -59,7 +60,7 @@ export abstract class JsonDAO<T extends DBModelInterface> implements DAOInterfac
 
     public idExists(id: string): boolean {
         const elements = this.getAll();
-        return elements.some((element) => {return this.compareElementToId(element, id)});
+        return elements.some((element) => this.compareElementToId(element, id));
     }
     //#endregion
 
@@ -69,7 +70,7 @@ export abstract class JsonDAO<T extends DBModelInterface> implements DAOInterfac
     }
 
     private searchElementThrowExceptionIfNotFound(elements: T[], id: string): T | null{
-        const element = elements.find((element) => {return this.compareElementToId(element, id)});
+        const element = elements.find((element) => this.compareElementToId(element, id));
         if (!element){ return null; }
         return element;
     }
