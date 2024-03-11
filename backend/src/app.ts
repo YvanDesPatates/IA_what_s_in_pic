@@ -44,6 +44,15 @@ app.post(
   }
 );
 
+app.post("/api/logout", (req: Request, res: Response) => {
+  req.logout(function (err) {
+    if (err) {
+      res.status(500).json({ message: "Error logging out" });
+    }
+    res.status(200).json({ message: "Logged out" });
+  });
+});
+
 app.get("/", (req, res) => {
   res?.send({
     message: "Hello World",
