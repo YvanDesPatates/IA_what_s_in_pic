@@ -13,8 +13,8 @@ export const ParsingResponseBodyMiddleware = (req: Request, res: Response, next:
         data = getDisplayableCopyIfInstanceOfModelInterface(data);
         return originalJsonFunction.call(this, data);
     };
-
-
+    
+    
     next();
 };
 

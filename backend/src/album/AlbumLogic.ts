@@ -1,102 +1,131 @@
-import {assertAttributeExists, assertAttributeType_number} from "../util/attribute_assertions";
-import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
-import {LogicInterface} from "../LogicInterface";
-import {AlbumJsonDAO} from "./albumJsonDAO";
-import {AlbumDTO} from "./AlbumDTO";
-import {AlbumDBModel} from "./AlbumDBModel";
-import {AccountLogic} from "../account/AccountLogic";
+import {
+  assertAttributeExists,
+  assertAttributeType_number,
+} from "../util/attribute_assertions";
+import { DisplayableJsonError } from "../displayableErrors/DisplayableJsonError";
+import { LogicInterface } from "../LogicInterface";
+import { AlbumJsonDAO } from "./albumJsonDAO";
+import { AlbumDTO } from "./AlbumDTO";
+import { AlbumDBModel } from "./AlbumDBModel";
+import { AccountLogic } from "../account/AccountLogic";
 
-export class AlbumLogic implements LogicInterface{
-    private _id?: number;
-    private _name: string;
-    private _creatorAccount: AccountLogic;
-    private _invitedAccounts: AccountLogic[];
+export class AlbumLogic implements LogicInterface {
+  private _id?: number;
+  private _name: string;
+  private _creatorAccount: AccountLogic;
+  private _invitedAccounts: AccountLogic[];
 
-    private _albumJsonDAO: AlbumJsonDAO = new AlbumJsonDAO();
+  private _albumJsonDAO: AlbumJsonDAO = new AlbumJsonDAO();
 
+  public constructor(
+    name: string,
+    creatorAccount: AccountLogic,
+    invitedAccounts: AccountLogic[] = [],
+    id?: number
+  ) {
+    assertAttributeExists(name, "name");
+    assertAttributeExists(creatorAccount, "creatorAccount");
 
-    public constructor(name: string, creatorAccount: AccountLogic, invitedAccounts: AccountLogic[] = [], id?: number) {
-        assertAttributeExists(name, "name");
-        assertAttributeExists(creatorAccount, "creatorAccount");
-
-        if (id){
-            assertAttributeType_number(id, "id");
-            this._id = id;
-        }
-
-        this._name = name;
-        this._creatorAccount = creatorAccount;
-        this._invitedAccounts = invitedAccounts;
+    if (id) {
+      assertAttributeType_number(id, "id");
+      this._id = id;
     }
 
+    this._name = name;
+    this._creatorAccount = creatorAccount;
+    this._invitedAccounts = invitedAccounts;
+  }
 
-    //#region public methods
-    public getDisplayableCopy(): AlbumDTO{
-        if (!this._id){
-            throw new Error("DTO need an ID to be constructed");
-        }
-        return {
-            id: this._id,
-            name: this._name,
-            creatorAccount: this._creatorAccount.getDisplayableCopy(),
-            invitedAccounts: this._invitedAccounts.map(account => account.getDisplayableCopy())
-        };
+  //#region public methods
+  public getDisplayableCopy(): AlbumDTO {
+    if (!this._id) {
+      throw new Error("DTO need an ID to be constructed");
     }
+    return {
+      id: this._id,
+      name: this._name,
+      creatorAccount: this._creatorAccount.getDisplayableCopy(),
+      invitedAccounts: this._invitedAccounts.map((account) =>
+        account.getDisplayableCopy()
+      ),
+    };
+  }
 
-    public async create(): Promise<AlbumLogic>{
-        return this._albumJsonDAO.create(this.toDBModel()).toLogic();
+  public async create(): Promise<AlbumLogic> {
+    return this._albumJsonDAO.create(this.toDBModel()).toLogic();
+  }
+
+  public static delete(id: number): void {
+    const dao = new AlbumJsonDAO();
+    AlbumLogic.assertIdExistsInDatabase(dao, id);
+    if (!dao.delete(id.toString())) {
+      throw new DisplayableJsonError(500, "Error when deleting album");
     }
+  }
 
-    public static delete(id: number): void{
-        const dao = new AlbumJsonDAO();
-        AlbumLogic.assertIdExistsInDatabase(dao, id);
-        if ( ! dao.delete(id.toString()) ){
-            throw new DisplayableJsonError(500, "Error when deleting album");
-        }
+  public async update(id: number): Promise<AlbumLogic> {
+    AlbumLogic.assertIdExistsInDatabase(this._albumJsonDAO, id);
+    this._albumJsonDAO.delete(id.toString());
+    return this.create();
+  }
+  //#endregion
+
+  //#region static methods
+  public static getAlbum(id: number): AlbumLogic {
+    AlbumLogic.assertIdExistsInDatabase(new AlbumJsonDAO(), id);
+    const album = new AlbumJsonDAO().getById(id.toString());
+    if (!album) {
+      throw new DisplayableJsonError(500, "Error when getting album");
     }
-    //#endregion
+    return album.toLogic();
+  }
 
-    //#region static methods
-    public static getAlbum(id: number): AlbumLogic{
-        AlbumLogic.assertIdExistsInDatabase(new AlbumJsonDAO(), id);
-        const album = new AlbumJsonDAO().getById(id.toString());
-        if ( ! album){ throw new DisplayableJsonError(500, "Error when getting album"); }
-        return album.toLogic();
+  static getAll(): AlbumLogic[] {
+    return new AlbumJsonDAO()
+      .getAll()
+      .map((albumDBModel) => albumDBModel.toLogic());
+  }
+  //#endregion
+
+  private static assertIdExistsInDatabase(
+    albumDAO: AlbumJsonDAO,
+    id: number
+  ): void {
+    if (!albumDAO.idExists(id.toString())) {
+      throw new DisplayableJsonError(
+        404,
+        "Album not found with the email " + id
+      );
     }
+  }
 
-    static getAll(): AlbumLogic[] {
-        return new AlbumJsonDAO().getAll().map(albumDBModel => albumDBModel.toLogic());
-    }
-    //#endregion
+  private toDBModel(): AlbumDBModel {
+    return new AlbumDBModel(
+      this._name,
+      this._creatorAccount.email,
+      this._invitedAccounts.map((account) => account.email),
+      this._id
+    );
+  }
+  //#endregion
 
-    private static assertIdExistsInDatabase(albumDAO: AlbumJsonDAO, id: number): void{
-        if ( ! albumDAO.idExists(id.toString())){
-            throw new DisplayableJsonError(404, "Album not found with the email " + id);
-        }
-    }
+  //#region getters
 
-    private toDBModel(): AlbumDBModel{
-        return new AlbumDBModel(this._name, this._creatorAccount.email, this._invitedAccounts.map(account => account.email), this._id);
-    }
-    //#endregion
+  get id(): number | undefined {
+    return this._id;
+  }
 
-    //#region getters
+  get name(): string {
+    return this._name;
+  }
 
-    get id(): number | undefined {
-        return this._id;
-    }
+  get creatorAccount(): AccountLogic {
+    return this._creatorAccount;
+  }
 
-    get name(): string {
-        return this._name;
-    }
+  get invitedAccounts(): AccountLogic[] {
+    return this._invitedAccounts;
+  }
 
-    get creatorAccount(): AccountLogic {
-        return this._creatorAccount;
-    }
-
-    get invitedAccounts(): AccountLogic[] {
-        return this._invitedAccounts;
-    }
-
-//#endregion
+  //#endregion
 }

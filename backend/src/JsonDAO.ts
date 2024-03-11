@@ -41,7 +41,6 @@ export abstract class JsonDAO<T extends DBModelInterface> implements DAOInterfac
 
     public create(newElement: T): T {
         const elements = this.getAll();
-        console.log(elements);
         elements.push(newElement);
         fs.writeFileSync(this.getFilePath(), JSON.stringify(elements));
         return newElement;
