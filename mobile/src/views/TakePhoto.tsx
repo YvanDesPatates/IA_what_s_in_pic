@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
 import Layout from '../components/Layout/Layout';
 import LayoutTop from '../components/Layout/LayoutTop';
@@ -16,8 +16,10 @@ import {useMutation} from '@tanstack/react-query';
 import {useDispatch, useSelector} from 'react-redux';
 import {selectUser} from '../stores/user/userSlice';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Image as IMGC} from 'react-native-compressor';
 import {uploadImage} from '../services/image/image.service';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
+import defaultTheme from '../themes/defaultTheme';
+import fs from 'react-native-fs';
 
 type TakePhotoProps = {
     navigation: BottomTabNavigationProp<any>;
@@ -57,6 +59,17 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 20,
     },
+    topText: {
+        fontSize: defaultTheme.fontSize.normal,
+        color: 'black',
+    },
+    topTextContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 8,
+    },
 });
 
 const TakePhoto = ({navigation}: TakePhotoProps) => {
@@ -67,6 +80,42 @@ const TakePhoto = ({navigation}: TakePhotoProps) => {
     const cameraRef = React.useRef<Camera>(null);
 
     const [takenPhoto, setTakenPhoto] = React.useState<string>();
+    const [takenPhotoSize, setTakenPhotoSize] = React.useState<number>();
+    const [takenPhotoSizeText, setTakenPhotoSizeText] =
+        React.useState<string>();
+    const [takenPhotoSize1, setTakenPhotoSize1] = React.useState<number>();
+    const [takenPhotoSize2, setTakenPhotoSize2] = React.useState<number>();
+
+    useEffect(() => {
+        if (takenPhotoSize === undefined) {
+            setTakenPhotoSizeText('');
+            return;
+        }
+
+        const photoSize =
+            takenPhotoSize / 1000 > 1000
+                ? (takenPhotoSize / 1000000).toFixed(2) + 'MB'
+                : (takenPhotoSize / 1000).toFixed(2) + 'KB';
+        setTakenPhotoSizeText(photoSize);
+    }, [takenPhotoSize]);
+
+    const [screenshotState, setScreenshotState] = useState<
+        'idle' | 'taking' | 'compressing' | 'previewing'
+    >('idle');
+    const screenshotStateRef = React.useRef<
+        'idle' | 'taking' | 'compressing' | 'previewing'
+    >('idle');
+
+    const [photoPath, setPhotoPath] = useState<string>();
+    const photoPathRef = React.useRef<string>();
+
+    useEffect(() => {
+        screenshotStateRef.current = screenshotState;
+    }, [screenshotState]);
+
+    useEffect(() => {
+        photoPathRef.current = photoPath;
+    }, [photoPath]);
 
     const {mutate: productsMutation} = useMutation({
         mutationFn: (data: {token: string; image_path: string}) =>
@@ -88,33 +137,57 @@ const TakePhoto = ({navigation}: TakePhotoProps) => {
         }
     };
 
-    const fileReader = new FileReader();
-    fileReader.onload = function () {
-        const base64 = fileReader.result;
-        setTakenPhoto(base64 as string);
+    const loadPhoto = async (path: string, first: boolean) => {
+        setPhotoPath(path);
+        let photoPath = 'file://' + path;
+
+        // Load photo
+        const image = await fs.readFile(photoPath, 'base64');
+        setTakenPhoto('data:image/jpeg;base64,' + image);
+
+        // Get the image size
+        const stats = await fs.stat(path);
+        setTakenPhotoSize(stats.size);
+
+        if (!first) {
+            setTakenPhotoSize2(stats.size);
+            setScreenshotState('previewing');
+        } else {
+            setTakenPhotoSize1(stats.size);
+        }
     };
 
     const takePhoto = () => {
+        setScreenshotState('taking');
+
         cameraRef.current
             ?.takePhoto({
                 enableShutterSound: false,
-                // flash: 'on',
-                qualityPrioritization: 'quality',
-                enableAutoStabilization: true,
-                enableAutoDistortionCorrection: true,
-                enableAutoRedEyeReduction: true,
+                // flash: 'on', // lol
+                qualityPrioritization: 'speed',
             })
             .then(async photo => {
-                const imageCompressedPath = await IMGC.compress(
-                    'file://' + photo.path,
-                    {
-                        quality: 0.8,
-                    },
-                );
-                const result = await fetch(imageCompressedPath);
-                const data = await result.blob();
+                setScreenshotState('compressing');
 
-                fileReader.readAsDataURL(data);
+                await loadPhoto(photo.path, true);
+                // Compress the image (good balance between quality and size)
+                const compressedImage = await ImageResizer.createResizedImage(
+                    'file://' + photo.path,
+                    photo.width,
+                    photo.height,
+                    'WEBP',
+                    0,
+                    undefined,
+                    undefined,
+                    false,
+                );
+
+                if (
+                    screenshotStateRef.current === 'compressing' &&
+                    photoPathRef.current === photo.path
+                ) {
+                    await loadPhoto(compressedImage.uri, false);
+                }
             });
     };
 
@@ -122,10 +195,67 @@ const TakePhoto = ({navigation}: TakePhotoProps) => {
         if (!hasPermission) requestPermission();
     }, [hasPermission, requestPermission]);
 
+    const getStatusText = (state: string) => {
+        let text = '';
+        switch (state) {
+            case 'idle':
+                text = 'Take a photo !';
+                break;
+            case 'taking':
+                text = 'Taking photo...';
+                break;
+            case 'compressing':
+                text = 'Compressing photo...';
+                break;
+            case 'previewing':
+                text = 'Photo taken';
+                break;
+            default:
+                text = 'Take a photo !';
+        }
+
+        return text;
+    };
+
     return (
         <Layout>
             <LayoutTop>
                 <LayoutBackButton navigation={navigation} />
+                <View style={styles.topTextContainer}>
+                    <Text style={styles.topText}>
+                        {getStatusText(screenshotState)}
+                    </Text>
+                    {takenPhotoSizeText && (
+                        <>
+                            <Text>•</Text>
+                            <Text
+                                style={[
+                                    styles.topText,
+                                    {
+                                        color:
+                                            screenshotState === 'previewing'
+                                                ? 'green'
+                                                : screenshotState === 'idle'
+                                                ? 'black'
+                                                : 'red',
+                                    },
+                                ]}>
+                                {takenPhotoSizeText}
+                                {screenshotState === 'previewing' &&
+                                takenPhotoSize1 &&
+                                takenPhotoSize2
+                                    ? ' (' +
+                                      Math.round(
+                                          ((takenPhotoSize2 - takenPhotoSize1) /
+                                              takenPhotoSize1) *
+                                              100,
+                                      ) +
+                                      '%)'
+                                    : ''}
+                            </Text>
+                        </>
+                    )}
+                </View>
             </LayoutTop>
             <LayoutContainer>
                 {!hasPermission && (
@@ -174,7 +304,21 @@ const TakePhoto = ({navigation}: TakePhotoProps) => {
                                                 enableZoomGesture={true}
                                             />
                                             <Ionicons
-                                                style={styles.takePhotoButton}
+                                                style={[
+                                                    styles.takePhotoButton,
+                                                    {
+                                                        opacity:
+                                                            screenshotState ===
+                                                            'taking'
+                                                                ? 0.5
+                                                                : 1,
+                                                        display:
+                                                            screenshotState ===
+                                                            'compressing'
+                                                                ? 'none'
+                                                                : 'flex',
+                                                    },
+                                                ]}
                                                 name={'ellipse'}
                                                 size={70}
                                                 color={'white'}
@@ -191,14 +335,19 @@ const TakePhoto = ({navigation}: TakePhotoProps) => {
                                     flex
                                     onPress={() => {
                                         setTakenPhoto(undefined);
+                                        setScreenshotState('idle');
+                                        setTakenPhotoSize(undefined);
                                     }}
-                                    content="Retake"
+                                    content="Retry"
+                                    color="#D3D3D3"
                                 />
-                                <Button
-                                    flex
-                                    onPress={uploadPhoto}
-                                    content="Upload"
-                                />
+                                {screenshotState === 'previewing' && (
+                                    <Button
+                                        flex
+                                        onPress={uploadPhoto}
+                                        content="Continue"
+                                    />
+                                )}
                             </View>
                         ) : null}
                     </View>
