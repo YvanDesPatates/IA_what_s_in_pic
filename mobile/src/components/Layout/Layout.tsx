@@ -5,13 +5,14 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 interface Props {
     children: React.ReactNode;
     style?: any;
+    noPaddingTop?: boolean;
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 30,
-        paddingTop: 80,
+        // paddingTop: 80,
         paddingBottom: 0,
         flexDirection: 'row',
         backgroundColor: 'white',
@@ -19,13 +20,10 @@ const styles = StyleSheet.create({
     },
 });
 
-const Layout = ({children, style}: Props) => {
+const Layout = ({children, style, noPaddingTop}: Props) => {
     return (
         <SafeAreaView
-            style={{
-                ...styles.container,
-                ...style,
-            }}>
+            style={[styles.container, style, !noPaddingTop && {paddingTop: 80}]}>
             {children}
         </SafeAreaView>
     );
