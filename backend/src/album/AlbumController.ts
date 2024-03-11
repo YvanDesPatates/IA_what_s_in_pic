@@ -8,7 +8,20 @@ import { DisplayableJsonError } from "../displayableErrors/DisplayableJsonError"
 export class AlbumController {
   public async getAllAlbums(req: Request, res: Response): Promise<void> {
     const albums: AlbumLogic[] = AlbumLogic.getAll();
-    res.status(200).json(albums);
+
+    // Get the user account
+    const userConnected = req.user as AccountLogic;
+
+    // Filter the albums to only show the albums from the user
+    const selectedAlbums = albums.filter(
+      (album) =>
+        album.creatorAccount.email === userConnected.email ||
+        album.invitedAccounts.some(
+          (account) => account.email === userConnected.email
+        )
+    );
+
+    res.status(200).json(selectedAlbums);
   }
 
   public async getAlbumById(req: Request, res: Response): Promise<void> {
@@ -56,9 +69,9 @@ export class AlbumController {
       }
 
       if (req.body.invitedAccountsEmail) {
-        req.body.invitedAccountsEmail = req.body.invitedAccountsEmail.map(
-          (email: string) => AccountLogic.getAccount(email)
-        ).filter((account: AccountLogic) => account.email !== creator.email);
+        req.body.invitedAccountsEmail = req.body.invitedAccountsEmail
+          .map((email: string) => AccountLogic.getAccount(email))
+          .filter((account: AccountLogic) => account.email !== creator.email);
       }
 
       const updatedAlbum: AlbumLogic = new AlbumLogic(
