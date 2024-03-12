@@ -1,13 +1,10 @@
-import {
-  assertAttributeExists,
-  assertAttributeType_number,
-} from "../util/attribute_assertions";
-import { DisplayableJsonError } from "../displayableErrors/DisplayableJsonError";
-import { LogicInterface } from "../LogicInterface";
-import { AlbumJsonDAO } from "./albumJsonDAO";
-import { AlbumDTO } from "./AlbumDTO";
-import { AlbumDBModel } from "./AlbumDBModel";
-import { AccountLogic } from "../account/AccountLogic";
+import {assertAttributeExists, assertAttributeType_number} from "../util/attribute_assertions";
+import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
+import {LogicInterface} from "../LogicInterface";
+import {AlbumJsonDAO} from "./albumJsonDAO";
+import {AlbumDTO} from "./AlbumDTO";
+import {AlbumDBModel} from "./AlbumDBModel";
+import {AccountLogic} from "../account/AccountLogic";
 
 export class AlbumLogic implements LogicInterface {
   private _id?: number;
@@ -70,22 +67,19 @@ export class AlbumLogic implements LogicInterface {
   }
   //#endregion
 
-  //#region static methods
-  public static getAlbum(id: number): AlbumLogic {
-    AlbumLogic.assertIdExistsInDatabase(new AlbumJsonDAO(), id);
-    const album = new AlbumJsonDAO().getById(id.toString());
-    if (!album) {
-      throw new DisplayableJsonError(500, "Error when getting album");
+    //#region static methods
+    public static async getAlbum(id: number): Promise<AlbumLogic>{
+        AlbumLogic.assertIdExistsInDatabase(new AlbumJsonDAO(), id);
+        const album = new AlbumJsonDAO().getById(id.toString());
+        if ( ! album){ throw new DisplayableJsonError(500, "Error when getting album"); }
+        return album.toLogic();
     }
-    return album.toLogic();
-  }
 
-  static getAll(): AlbumLogic[] {
-    return new AlbumJsonDAO()
-      .getAll()
-      .map((albumDBModel) => albumDBModel.toLogic());
-  }
-  //#endregion
+    static async getAll(): Promise<AlbumLogic[]> {
+        const albums = await new AlbumJsonDAO().getAll();
+        return await Promise.all(albums.map(async album => album.toLogic()));
+    }
+    //#endregion
 
   private static assertIdExistsInDatabase(
     albumDAO: AlbumJsonDAO,

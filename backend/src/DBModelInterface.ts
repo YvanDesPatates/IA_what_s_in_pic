@@ -1,5 +1,5 @@
 import {LogicInterface} from "./LogicInterface";
 
 export interface DBModelInterface {
-    toLogic(): LogicInterface;
+    toLogic(): Promise<LogicInterface>;
 }

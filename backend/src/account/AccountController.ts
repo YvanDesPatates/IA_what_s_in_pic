@@ -4,13 +4,13 @@ import {AccountLogic} from "./AccountLogic";
 export class AccountController {
 
     public async getAllAccounts(req: Request, res: Response): Promise<void> {
-        const accounts: AccountLogic[] = AccountLogic.getAll();
+        const accounts: AccountLogic[] = await AccountLogic.getAll();
         res.status(200).json(accounts);
     }
 
     public async getAccountById(req: Request, res: Response): Promise<void> {
         const email = req.params.email;
-        const account: AccountLogic = AccountLogic.getAccount(email);
+        const account: AccountLogic = await AccountLogic.getAccount(email);
         res.status(200).json(account);
     }
 
@@ -21,7 +21,7 @@ export class AccountController {
 
     public async updateAccount(req: Request, res: Response): Promise<void> {
         const actualEmail:string = req.params.email;
-        const accountToUpdate: AccountLogic = AccountLogic.getAccount(actualEmail);
+        const accountToUpdate: AccountLogic = await AccountLogic.getAccount(actualEmail);
         const updatedAccount: AccountLogic = new AccountLogic(
             req.body.email ?? accountToUpdate.email,
             req.body.name ?? accountToUpdate.name,

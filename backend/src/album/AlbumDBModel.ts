@@ -16,12 +16,13 @@ export class AlbumDBModel implements DBModelInterface{
         this.invitedAccountsEmail = invitedAccountsId;
     }
 
-    toLogic(): AlbumLogic {
+    public async toLogic(): Promise<AlbumLogic> {
         if (!this.id || !this.name || !this.creatorAccountEmail || !this.invitedAccountsEmail){
             throw new DisplayableJsonError(500, "impossible to parse data to AlbumDBModel : missing required attributes. Check for data integrity");
         }
-        const creatorAccount = AccountLogic.getAccount(this.creatorAccountEmail);
-        const invitedAccounts = this.invitedAccountsEmail.map( emailAccount => AccountLogic.getAccount(emailAccount) );
+        const creatorAccount = await AccountLogic.getAccount(this.creatorAccountEmail);
+        // const invitedAccounts = this.invitedAccountsEmail.map( async emailAccount => await AccountLogic.getAccount(emailAccount) );
+        const invitedAccounts = await Promise.all(this.invitedAccountsEmail.map(async emailAccount => await AccountLogic.getAccount(emailAccount)));
         return new AlbumLogic(this.name, creatorAccount, invitedAccounts, this.id);
     }
 }
