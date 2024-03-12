@@ -4,12 +4,12 @@ import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 import {AccountLogic} from "../account/AccountLogic";
 
 export class AlbumDBModel implements DBModelInterface{
-    id?: number;
+    id?: string;
     name?: string;
     creatorAccountEmail?: string;
     invitedAccountsEmail?: string[];
 
-    constructor(name: string, creatorAccountId: string, invitedAccountsId: string[], id?: number) {
+    constructor(name: string, creatorAccountId: string, invitedAccountsId: string[], id?: string) {
         this.id = id;
         this.name = name;
         this.creatorAccountEmail = creatorAccountId;
