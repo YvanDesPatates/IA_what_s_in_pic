@@ -1,8 +1,9 @@
 import {DisplayableJsonError} from "./displayableErrors/DisplayableJsonError";
 import {DBModelInterface} from "./DBModelInterface";
 import axios, {AxiosRequestConfig} from "axios";
+import {DAOInterface} from "./DAOInterface";
 
-export abstract class RestdbDAO<T extends DBModelInterface> {
+export abstract class RestdbDAO<T extends DBModelInterface> implements DAOInterface<T>{
     private readonly DBconfig: AxiosRequestConfig = {
         baseURL: process.env.DB_BASE_URL,
         headers: {'x-apikey': process.env.DB_API_KEY},
