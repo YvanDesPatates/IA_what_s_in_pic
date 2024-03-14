@@ -3,9 +3,9 @@ import {AccountLogic} from "./AccountLogic";
 import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 
 export class AccountDBModel implements DBModelInterface{
-    email?: string;
-    name?: string;
-    pwd?: string;
+    public email?: string;
+    public name?: string;
+    public pwd?: string;
 
     constructor(email: string, name: string, pwd: string) {
         this.email = email;
