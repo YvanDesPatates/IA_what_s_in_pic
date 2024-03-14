@@ -9,3 +9,7 @@ docker-compose.yml
 README.md
 ../.env
 ../.env.exemple
+# tests
+/coverage/
+/__tests__/
+jest.config.js

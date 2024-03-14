@@ -6,3 +6,5 @@
 /dist/
 # data repository for local database
 /data/
+# tests
+/coverage/
