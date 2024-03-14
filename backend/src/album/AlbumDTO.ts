@@ -1,7 +1,7 @@
 import {AccountDTO} from "../account/AccountDTO";
 
 export interface AlbumDTO {
-    id: number;
+    id: string;
     name: string;
     creatorAccount: AccountDTO;
     invitedAccounts: AccountDTO[];

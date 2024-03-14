@@ -1,7 +1,6 @@
 import {Request, Response} from "express";
 import {AlbumLogic} from "./AlbumLogic";
 import {assertAttributeExists} from "../util/attribute_assertions";
-import {UnexpectedAttributeTypeError} from "../displayableErrors/UnexpectedAttributeTypeError";
 import {AccountLogic} from "../account/AccountLogic";
 import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 
@@ -27,12 +26,8 @@ export class AlbumController {
     public async getAlbumById(req: Request, res: Response): Promise<void> {
         const id = req.params.id;
         assertAttributeExists(id, "id");
-        try {
-            const album: AlbumLogic = await AlbumLogic.getAlbum(parseInt(id));
-            res.status(200).json(album);
-        } catch (error) {
-            throw new UnexpectedAttributeTypeError("id", "integer");
-        }
+        const album: AlbumLogic = await AlbumLogic.getAlbum(id);
+        res.status(200).json(album);
     }
 
     public async createAlbum(req: Request, res: Response): Promise<void> {
@@ -54,56 +49,38 @@ export class AlbumController {
     public async updateAlbum(req: Request, res: Response): Promise<void> {
         const idToUpdate = req.params.id;
         assertAttributeExists(idToUpdate, "id");
-        try {
-            const id = parseInt(idToUpdate);
-            const albumToUpdate: AlbumLogic = await AlbumLogic.getAlbum(id);
-            const creator = req.user as AccountLogic;
+        const albumToUpdate: AlbumLogic = await AlbumLogic.getAlbum(idToUpdate);
+        const creator = req.user as AccountLogic;
 
-            // Check if the user is the creator of the album
-            if (albumToUpdate.creatorAccount.email !== creator.email) {
-                throw new DisplayableJsonError(
-                    403,
-                    "You are not allowed to update this album"
-                );
-            }
-
-            let invitedAccounts: Array<AccountLogic> = [];
-            if (req.body.invitedAccountsEmail) {
-                invitedAccounts = await Promise.all(req.body.invitedAccountsEmail.map(
-                    async (emailAccount: string) => await AccountLogic.getAccount(emailAccount)));
-                invitedAccounts.filter((account: AccountLogic) => account.email !== creator.email);
-            }
-
-            const updatedAlbum: AlbumLogic = new AlbumLogic(
-                req.body.name ?? albumToUpdate.name,
-                albumToUpdate.creatorAccount,
-                invitedAccounts ?? albumToUpdate.invitedAccounts,
-                albumToUpdate.id
+        // Check if the user is the creator of the album
+        if (albumToUpdate.creatorAccount.email !== creator.email) {
+            throw new DisplayableJsonError(
+                403,
+                "You are not allowed to update this album"
             );
-            await updatedAlbum.update(id);
-
-            res.status(200).json(updatedAlbum);
-        } catch (error) {
-            if (error instanceof DisplayableJsonError) {
-                throw error;
-            }
-
-            throw new UnexpectedAttributeTypeError("id", "integer");
         }
+
+        let invitedAccounts: Array<AccountLogic> = [];
+        if (req.body.invitedAccountsEmail) {
+            invitedAccounts = await Promise.all(req.body.invitedAccountsEmail.map(
+                async (emailAccount: string) => await AccountLogic.getAccount(emailAccount)));
+            invitedAccounts.filter((account: AccountLogic) => account.email !== creator.email);
+        }
+
+        const updatedAlbum: AlbumLogic = new AlbumLogic(
+            req.body.name ?? albumToUpdate.name,
+            albumToUpdate.creatorAccount,
+            invitedAccounts ?? albumToUpdate.invitedAccounts,
+            albumToUpdate.id
+        );
+        await updatedAlbum.update(idToUpdate);
+
+        res.status(200).json(updatedAlbum);
     }
 
     public async deleteAlbum(req: Request, res: Response): Promise<void> {
         const idToDelete = req.params.id;
-        try {
-            const id = parseInt(idToDelete);
-            await AlbumLogic.delete(id);
-            res.status(200).json(null);
-        } catch (error) {
-            if (error instanceof DisplayableJsonError) {
-                throw error;
-            }
-
-            throw new UnexpectedAttributeTypeError("id", "integer");
-        }
+        await AlbumLogic.delete(idToDelete);
+        res.status(200).json(null);
     }
 }

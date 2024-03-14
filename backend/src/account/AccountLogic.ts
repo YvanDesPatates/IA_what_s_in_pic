@@ -5,13 +5,14 @@ import {LogicInterface} from "../LogicInterface";
 import {AccountDTO} from "./AccountDTO";
 import {AccountDBModel} from "./AccountDBModel";
 import {AccountRestdbDAO} from "./AccountRestdbDAO";
+import {DAOInterface} from "../DAOInterface";
 
 export class AccountLogic implements LogicInterface {
     private _email: string;
     private _name: string;
     private _pwd?: string;
 
-    private accountRestdbDAO: AccountRestdbDAO = new AccountRestdbDAO();
+    private accountRestdbDAO: DAOInterface<AccountDBModel> = new AccountRestdbDAO();
     private readonly _saltRounds: number = 10;
 
 
@@ -90,7 +91,7 @@ export class AccountLogic implements LogicInterface {
         }
     }
 
-    private static async assertEmailExistsInDatabase(accountDAO: AccountRestdbDAO, email: string): Promise<void> {
+    private static async assertEmailExistsInDatabase(accountDAO: DAOInterface<AccountDBModel>, email: string): Promise<void> {
         if (! await accountDAO.idExists(email)) {
             throw new DisplayableJsonError(404, "Account not found with the email " + email);
         }
