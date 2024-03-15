@@ -4,6 +4,9 @@ import * as fs from "fs";
 import {MissingAttributeError} from "../displayableErrors/MissingAttributeError";
 import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 
+/**
+ * this DAO is special, it will store images in file system and metadata (name, author...) in restDB
+ */
 export class ImageRestdbDAO extends RestdbDAO<ImageDBModel> {
     private commonPath: string = "imgs/";
 
@@ -46,7 +49,7 @@ export class ImageRestdbDAO extends RestdbDAO<ImageDBModel> {
     }
 
     /**
-     * override create method to create image in filesystem before create metadata in restDB
+     * override create method to create image in filesystem and create metadata in restDB
      */
     async create(newElement: ImageDBModel): Promise<ImageDBModel> {
         if ( ! newElement.imageBytes){
@@ -69,7 +72,7 @@ export class ImageRestdbDAO extends RestdbDAO<ImageDBModel> {
         return createdElement;
     }
     /**
-     * override delete method to delete image in filesystem before delete metadata in restDB
+     * override delete method to delete image in filesystem and delete metadata in restDB
      */
     async delete(id: string): Promise<boolean> {
         if ( ! fs.existsSync(this.getImagePath(id))){
