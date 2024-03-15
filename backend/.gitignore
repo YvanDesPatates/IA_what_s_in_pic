@@ -6,5 +6,6 @@
 /dist/
 # data repository for local database
 /data/
+/imgs/
 # tests
 /coverage/

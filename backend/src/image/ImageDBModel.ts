@@ -6,11 +6,23 @@ import {ImageLogic} from "./ImageLogic";
 
 export class ImageDBModel implements DBModelInterface {
     public id?: string;
+    public imageBytes?: number[];
     public name: string;
     public date: string;
     public creatorAccountEmail: string;
     public albumIds: string[];
     public tags: string[];
+
+
+    constructor(imageBytes: number[], name: string, date: string, creatorAccountEmail: string, albumIds: string[], tags: string[], id?: string) {
+        this.id = id;
+        this.imageBytes = imageBytes;
+        this.name = name;
+        this.date = date;
+        this.creatorAccountEmail = creatorAccountEmail;
+        this.albumIds = albumIds;
+        this.tags = tags;
+    }
 
     public async toLogic(): Promise<ImageLogic> {
         if (!this.id){
