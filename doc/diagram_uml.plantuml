@@ -1,24 +1,24 @@
 @startuml
 class Account{
-id: number
+emain: string
 name: string
 mdp: string
 }
 
 class Img{
-id: number
+id: string
 name: string
 date: date
-accountId: number
-albumIds: number[]
+accountId: string
+albumIds: string[]
 tags: string[]
 }
 
 class Album{
-id: number
+id: string
 name: string
-creatorAccountId: number
-InvitedAccountsIds: number[]
+creatorAccountId: string
+InvitedAccountsIds: string[]
 }
 
 Img -up->"accountId" Account
