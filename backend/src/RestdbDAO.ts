@@ -35,7 +35,7 @@ export abstract class RestdbDAO<T extends DBModelInterface> implements DAOInterf
         config.url = this.collectionUrl + '/' + id;
         try {
             const response = await axios(config);
-            return response.data;
+            return this.parseAnyFromDB(response.data);
         } catch (e) {
             return null;
         }

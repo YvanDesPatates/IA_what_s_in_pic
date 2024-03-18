@@ -39,15 +39,6 @@ export class ImageRestdbDAO extends RestdbDAO<ImageDBModel> {
         return new ImageDBModel(imageBytes, objectToParse.name, objectToParse.date, objectToParse.creatorAccountEmail, objectToParse.albumIds, objectToParse.tags, objectToParse._id);
     }
 
-    async getById(id: string): Promise<ImageDBModel | null> {
-        const regex = "^"+id+"$";
-        const image = await this.getByField("email", regex);
-        if ( !image[0]){
-            return null;
-        }
-        return this.parseAnyFromDB(image[0]);
-    }
-
     /**
      * override create method to create image in filesystem and create metadata in restDB
      */
