@@ -5,16 +5,16 @@ export interface LoginPayload {
 
 export interface LoginResponse {
     email: string;
+    name: string;
 }
 
 export interface RegisterPayload {
-    username: string;
+    name: string;
     email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
+    pwd: string;
 }
 
 export interface RegisterResponse {
-    access_token: string;
+    email: string;
+    name: string;
 }

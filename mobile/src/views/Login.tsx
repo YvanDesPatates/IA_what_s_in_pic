@@ -7,7 +7,6 @@ import {StyleSheet} from 'react-native';
 import InputTextField from '../components/InputTextField';
 import Button from '../components/Button';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {version} from '../../package.json';
 import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import SeparatorText from '../components/SeparatorText';
 import LayoutTop from '../components/Layout/LayoutTop';
@@ -16,9 +15,7 @@ import defaultTheme from '../themes/defaultTheme';
 import {useMutation} from '@tanstack/react-query';
 import {login} from '../services/auth/auth.service';
 import Callout from '../components/Callout';
-import {accessTokenChanged, userProfileChanged} from '../stores/user/userSlice';
 import {useDispatch} from 'react-redux';
-import {getProfile} from '../services/user/user.service';
 import {LoginPayload} from '../types/auth';
 
 type LoginProps = {
@@ -64,7 +61,6 @@ const Login = ({navigation}: LoginProps) => {
     const [username, setUsername] = React.useState('test@gmail.com');
     const [password, setPassword] = React.useState('test');
     const [error, setError] = React.useState('');
-    const dispatch = useDispatch();
 
     const {mutate: loginMutation, isPending: isLoginPending} = useMutation({
         mutationFn: (loginPayload: LoginPayload) => login(loginPayload),
@@ -93,11 +89,6 @@ const Login = ({navigation}: LoginProps) => {
     const processLogin = () => {
         setError('');
         loginMutation({email: username, pwd: password});
-        // TODO: REMOVE THIS
-        // navigation.reset({
-        //     index: 0,
-        //     routes: [{name: 'Tabs'}],
-        // });
     };
 
     const redirectRegister = () => {
@@ -177,11 +168,11 @@ const Login = ({navigation}: LoginProps) => {
                             />
                         </View>
 
-                        <View style={styles.version}>
+                        {/* <View style={styles.version}>
                             <Text style={styles.versionText}>
                                 version {version}
                             </Text>
-                        </View>
+                        </View> */}
                     </View>
                 </LayoutContainer>
             </TouchableOpacity>

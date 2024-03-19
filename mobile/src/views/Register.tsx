@@ -7,17 +7,14 @@ import {StyleSheet} from 'react-native';
 import InputTextField from '../components/InputTextField';
 import Button from '../components/Button';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {version} from '../../package.json';
 import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import LayoutTop from '../components/Layout/LayoutTop';
 import LayoutBackButton from '../components/Layout/LayoutBackButton';
 import defaultTheme from '../themes/defaultTheme';
-import {useDispatch} from 'react-redux';
 import {useMutation} from '@tanstack/react-query';
 import {register} from '../services/auth/auth.service';
 import Callout from '../components/Callout';
-import {accessTokenChanged, userProfileChanged} from '../stores/user/userSlice';
-import {getProfile} from '../services/user/user.service';
+import {RegisterPayload} from '../types/auth';
 
 type RegisterProps = {
     navigation: BottomTabNavigationProp<any>;
@@ -64,36 +61,21 @@ const styles = StyleSheet.create({
 });
 
 const Register = ({navigation}: RegisterProps) => {
-    const [username, setUsername] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [passwordConfirmation, setPasswordConfirmation] = React.useState('');
     const [email, setEmail] = React.useState('');
-    const [firstName, setFirstName] = React.useState('');
-    const [lastName, setLastName] = React.useState('');
+    const [name, setName] = React.useState('');
     const [error, setError] = React.useState('');
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
 
-    const {mutate: registerMutation, isPending: isRegisterPending} =
-        useMutation({
-            mutationFn: (data: {
-                username: string;
-                email: string;
-                password: string;
-                firstName: string;
-                lastName: string;
-            }) =>
-                register(
-                    data.username,
-                    data.email,
-                    data.password,
-                    data.firstName,
-                    data.lastName,
-                ),
-            onSuccess: async data => {
-                dispatch(accessTokenChanged(data.access_token));
+    const {mutate: registerMutation} = useMutation({
+        mutationFn: (data: RegisterPayload) => register(data),
+        onSuccess: async data => {
+            if (data.email === email) {
+                // dispatch(accessTokenChanged(data.access_token));
                 try {
-                    const profile = await getProfile(data.access_token);
-                    dispatch(userProfileChanged(profile));
+                    // const profile = await getProfile(data.access_token);
+                    // dispatch(userProfileChanged(profile));
                     navigation.reset({
                         index: 0,
                         routes: [{name: 'Tabs'}],
@@ -101,15 +83,26 @@ const Register = ({navigation}: RegisterProps) => {
                 } catch (err: any) {
                     setError(err.message);
                 }
-            },
-            onError: err => {
-                setError(err.message);
-            },
-        });
+            }
+        },
+        onError: err => {
+            setError(err.message);
+        },
+    });
 
     const processRegister = () => {
         setError('');
-        registerMutation({username, password, email, firstName, lastName});
+
+        if (password !== passwordConfirmation) {
+            setError('Passwords do not match');
+            return;
+        }
+
+        registerMutation({
+            email: email,
+            name: name,
+            pwd: password,
+        });
     };
 
     return (
@@ -145,25 +138,11 @@ const Register = ({navigation}: RegisterProps) => {
 
                     <View style={styles.registerForm}>
                         <InputTextField
-                            name="First name"
+                            name="Name"
                             icon="person"
-                            placeholder="First name"
-                            value={firstName}
-                            onChange={setFirstName}
-                        />
-                        <InputTextField
-                            name="Last name"
-                            icon="person"
-                            placeholder="Last name"
-                            value={lastName}
-                            onChange={setLastName}
-                        />
-                        <InputTextField
-                            name="Username"
-                            icon="person"
-                            placeholder="Username"
-                            value={username}
-                            onChange={setUsername}
+                            placeholder="Name"
+                            value={name}
+                            onChange={setName}
                         />
                         <InputTextField
                             name="Email"
@@ -185,6 +164,8 @@ const Register = ({navigation}: RegisterProps) => {
                             icon="lock-closed"
                             placeholder="Password confirmation"
                             password
+                            value={passwordConfirmation}
+                            onChange={setPasswordConfirmation}
                         />
                     </View>
 
@@ -192,11 +173,11 @@ const Register = ({navigation}: RegisterProps) => {
                         <Button content="Register" onPress={processRegister} />
                     </View>
 
-                    <View style={styles.version}>
+                    {/* <View style={styles.version}>
                         <Text style={styles.versionText}>
                             version {version}
                         </Text>
-                    </View>
+                    </View> */}
                 </View>
             </LayoutContainer>
         </Layout>
