@@ -102,7 +102,7 @@ const Login = ({navigation}: LoginProps) => {
             </LayoutTop>
             <TouchableOpacity activeOpacity={1} onPress={Keyboard.dismiss}>
                 <LayoutContainer>
-                    <LayoutHeader title="Image" subTitle="Compressor">
+                    <LayoutHeader title="Pics" subTitle="Manager">
                         <Ionicons
                             name="wallet"
                             color={defaultTheme.colors.primary}

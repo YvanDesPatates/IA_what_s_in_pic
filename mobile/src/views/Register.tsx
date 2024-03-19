@@ -111,7 +111,7 @@ const Register = ({navigation}: RegisterProps) => {
                 <LayoutBackButton navigation={navigation} />
             </LayoutTop>
             <LayoutContainer>
-                <LayoutHeader title="Cash" subTitle="Manager">
+                <LayoutHeader title="Pics" subTitle="Manager">
                     <Ionicons
                         name="wallet"
                         color={defaultTheme.colors.primary}

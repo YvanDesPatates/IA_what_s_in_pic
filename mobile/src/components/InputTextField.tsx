@@ -11,6 +11,7 @@ type InputTextFieldProps = {
     value?: string;
     keyboardType?: TextInputProps['keyboardType'];
     onChange?: (value: string) => void;
+    flex?: boolean;
 };
 
 const styles = StyleSheet.create({
@@ -37,9 +38,10 @@ const InputTextField = ({
     value,
     onChange,
     keyboardType,
+    flex,
 }: InputTextFieldProps) => {
     return (
-        <View style={styles.inputField}>
+        <View style={[styles.inputField, flex && {flex: 1}]}>
             {icon && <Ionicons name={icon} size={24} color="gray" />}
             <TextInput
                 style={styles.input}
