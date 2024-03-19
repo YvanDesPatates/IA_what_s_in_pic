@@ -6,16 +6,23 @@ import Layout from '../components/Layout/Layout';
 import LayoutTop from '../components/Layout/LayoutTop';
 import LayoutBackButton from '../components/Layout/LayoutBackButton';
 import LayoutContainer from '../components/Layout/LayoutContainer';
-import {Text, View} from 'react-native';
+import {Dimensions, ScrollView, Text, View} from 'react-native';
 import Button from '../components/Button';
 import InputTextField from '../components/InputTextField';
 import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import {NavigationStackParamList} from '../components/Navigation/NavigationStack';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import Callout from '../components/Callout';
 
 type MyAlbumsProps = BottomTabScreenProps<NavigationStackParamList, 'MyAlbums'>;
 
 const MyAlbums = ({navigation, route}: MyAlbumsProps) => {
+    const {creation, onSelect} = route.params;
+
     const [newAlbumName, setNewAlbumName] = React.useState('');
+    const [participants, setParticipants] = React.useState<string[]>([]);
+    const [isEmailsValid, setIsEmailsValid] = React.useState<boolean>(true);
 
     const albums = useQuery<any[]>({
         queryKey: ['albums'],
@@ -23,13 +30,37 @@ const MyAlbums = ({navigation, route}: MyAlbumsProps) => {
     });
 
     const onAlbumSelected = (album: any) => {
-        route.params.onSelect(album);
+        onSelect(album);
         navigation.goBack();
     };
 
     const onCreateNewAlbum = () => {
-        route.params.onSelect({name: newAlbumName, new: true});
+        if (newAlbumName === '') {
+            return;
+        }
+
+        if (participants.length > 0) {
+            const emailsValid = participants.every(email =>
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+            );
+            if (!emailsValid) {
+                setIsEmailsValid(false);
+                return;
+            }
+        }
+
+        onSelect({name: newAlbumName, new: true, participants});
         navigation.goBack();
+    };
+
+    const addParticipant = () => {
+        setParticipants([...participants, '']);
+    };
+
+    const removeParticipant = (index: number) => {
+        const newParticipants = [...participants];
+        newParticipants.splice(index, 1);
+        setParticipants(newParticipants);
     };
 
     return (
@@ -42,7 +73,7 @@ const MyAlbums = ({navigation, route}: MyAlbumsProps) => {
                         fontWeight: 'bold',
                         color: 'black',
                     }}>
-                    Choose an album
+                    {creation ? 'Create new album' : 'Choose an album'}
                 </Text>
             </LayoutTop>
             <LayoutContainer>
@@ -52,12 +83,82 @@ const MyAlbums = ({navigation, route}: MyAlbumsProps) => {
                         flexDirection: 'column',
                         gap: 15,
                     }}>
-                    <Text>I want to create a new album</Text>
+                    {!creation && <Text>I want to create a new album</Text>}
                     <InputTextField
                         name="albumName"
                         placeholder="Album name"
                         value={newAlbumName}
                         onChange={setNewAlbumName}
+                    />
+
+                    {!isEmailsValid && (
+                        <Callout
+                            title="Add participants"
+                            type="danger"
+                            dismissablePress={() => setIsEmailsValid(true)}>
+                            <Text>
+                                Participants must have a valid email address.
+                                Please check the email addresses and try again.
+                            </Text>
+                        </Callout>
+                    )}
+
+                    <Callout title="Add participants" type="info">
+                        <Text>
+                            You can add participants to your album by entering
+                            their email addresses.
+                        </Text>
+                    </Callout>
+
+                    {participants.length > 0 && (
+                        <Text>Participants ({participants.length})</Text>
+                    )}
+                    <ScrollView
+                        style={{
+                            maxHeight: Dimensions.get('window').height * 0.5,
+                        }}>
+                        {participants.map((participant, index) => (
+                            <View
+                                key={index}
+                                style={{
+                                    marginBottom: 20,
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    gap: 10,
+                                }}>
+                                <InputTextField
+                                    flex
+                                    name="participant"
+                                    placeholder="Participant email"
+                                    value={participant}
+                                    onChange={value => {
+                                        const newParticipants = [
+                                            ...participants,
+                                        ];
+                                        newParticipants[index] = value;
+                                        setParticipants(newParticipants);
+                                    }}
+                                />
+                                <TouchableOpacity
+                                    onPress={() => removeParticipant(index)}>
+                                    <Ionicons
+                                        name="remove"
+                                        size={30}
+                                        color="white"
+                                        style={{
+                                            backgroundColor: 'indianred',
+                                            borderRadius: 50,
+                                        }}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        ))}
+                    </ScrollView>
+                    <Button
+                        color="lightblue"
+                        content="Add participant"
+                        onPress={() => addParticipant()}
                     />
                     <Button
                         content="Create new album"
@@ -65,20 +166,22 @@ const MyAlbums = ({navigation, route}: MyAlbumsProps) => {
                     />
                 </View>
 
-                <View
-                    style={{
-                        display: 'flex',
-                        flex: 1,
-                        flexDirection: 'column',
-                        gap: 15,
-                        marginTop: 20,
-                    }}>
-                    <Text>Or, choose your album</Text>
-                    <AlbumListing
-                        queryResult={albums}
-                        onAlbumSelected={onAlbumSelected}
-                    />
-                </View>
+                {!creation && (
+                    <View
+                        style={{
+                            display: 'flex',
+                            flex: 1,
+                            flexDirection: 'column',
+                            gap: 15,
+                            marginTop: 20,
+                        }}>
+                        <Text>Or, choose one of my album</Text>
+                        <AlbumListing
+                            queryResult={albums}
+                            onAlbumSelected={onAlbumSelected}
+                        />
+                    </View>
+                )}
             </LayoutContainer>
         </Layout>
     );
