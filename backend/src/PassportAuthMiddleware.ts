@@ -6,19 +6,38 @@ import { AccountLogic } from "./account/AccountLogic";
 import { DisplayableJsonError } from "./displayableErrors/DisplayableJsonError";
 
 export async function initPassport(app: Express) {
-    app.use(passport.initialize());
-    app.use(passport.authenticate("session"));
+  app.use(passport.initialize());
+  app.use(passport.authenticate("session"));
 
-    passport.use(new passportStrategy.Strategy(
-        { usernameField: "email", passwordField:"pwd"}, async (email, password, done) => {
-                if (!email) { done(null, false); }
-                const account = await AccountLogic.getAccount(email);
-                if (account.email == email && await bcrypt.compare(password, (<string>account.pwd).toString())) {
-                    done(null, account);
-                } else {
-                    done(new DisplayableJsonError(401, "unauthorized, bad email or pwd"), undefined);
-                }
-        }));
+  passport.use(
+    new passportStrategy.Strategy(
+      { usernameField: "email", passwordField: "pwd" },
+      async (email, password, done) => {
+        if (!email) {
+          done(null, false);
+        }
+        try {
+          const account = await AccountLogic.getAccount(email);
+          if (
+            account.email == email &&
+            (await bcrypt.compare(password, (<string>account.pwd).toString()))
+          ) {
+            done(null, account);
+          } else {
+            done(
+              new DisplayableJsonError(401, "unauthorized, bad email or pwd"),
+              undefined
+            );
+          }
+        } catch {
+          done(
+            new DisplayableJsonError(401, "unauthorized, bad email or pwd"),
+            undefined
+          );
+        }
+      }
+    )
+  );
 
   passport.serializeUser((req: Request, user: any, done: any) => {
     done(null, { email: user.email });
