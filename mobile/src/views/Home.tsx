@@ -4,9 +4,10 @@ import LayoutHeader from '../components/Layout/LayoutHeader';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import LayoutContainer from '../components/Layout/LayoutContainer';
-import {FlatList, RefreshControl, TouchableOpacity} from 'react-native';
+import {
+    TouchableOpacity,
+} from 'react-native';
 import {Dimensions, StyleSheet, Text, View} from 'react-native';
-import AlbumItem from '../components/AlbumItem';
 import defaultTheme from '../themes/defaultTheme';
 import {useQuery} from '@tanstack/react-query';
 import {getAlbums} from '../services/image/image.service';
@@ -124,6 +125,38 @@ const Home = ({navigation}: HomeProps) => {
                         flex: 1,
                         marginTop: 30,
                     }}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            navigation.navigate('MyAlbums', {
+                                creation: true,
+                                onSelect: (album: any) => {
+                                    console.log('Album created', album);
+                                },
+                            });
+                        }}
+                        style={{
+                            position: 'absolute',
+                            zIndex: 100,
+                            bottom: 20,
+                            right: 0,
+                            height: 60,
+                            width: 60,
+                            backgroundColor: defaultTheme.colors.primary,
+                            borderRadius: 50,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            shadowColor: '#000',
+                            shadowOffset: {
+                                width: 0,
+                                height: 2,
+                            },
+                            shadowOpacity: 0.25,
+                            shadowRadius: 3.84,
+                            elevation: 3,
+                            flex: 1,
+                        }}>
+                        <Ionicons name="add" size={28} color="white" />
+                    </TouchableOpacity>
                     <AlbumListing
                         queryResult={albums}
                         onAlbumSelected={onAlbumSelected}
