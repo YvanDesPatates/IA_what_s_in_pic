@@ -7,17 +7,16 @@ function setBaseUrl() {
 }
 
 export async function login(
-    username: string,
-    password: string,
+    loginPayload: LoginPayload,
 ): Promise<LoginResponse> {
     setBaseUrl();
 
     try {
-        const payload: LoginPayload = {username, password};
-        const response = await axios.post<LoginResponse>(
-            '/auth/login',
-            payload,
-        );
+        const payload: LoginPayload = {
+            email: loginPayload.email,
+            pwd: loginPayload.pwd,
+        };
+        const response = await axios.post<LoginResponse>('/api/login', payload);
 
         if (response.status === 200 || response.status === 201) {
             return response.data;

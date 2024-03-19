@@ -1,20 +1,20 @@
 import axios from 'axios';
-import {Product} from '../../types/product';
+import {Album} from '../../types/album';
 import {setAxiosBaseUrlFromSettings} from '../api';
 
 function setBaseUrl() {
     setAxiosBaseUrlFromSettings();
 }
 
-export async function getProducts(): Promise<Product[]> {
+export async function getProducts(): Promise<Album[]> {
     setBaseUrl();
 
     try {
-        const response = await axios.get<Product[]>('/products');
+        const response = await axios.get<Album[]>('/products');
 
         if (response.status === 200) {
             // Convert "_id" to "id"
-            let products: Product[] = [];
+            let products: Album[] = [];
             response.data.forEach(product => {
                 // @ts-ignore
                 product.id = product._id;
@@ -43,7 +43,7 @@ export async function getProductById(token: string, product_id: string) {
     setBaseUrl();
 
     try {
-        const response = await axios.get<Product>(`/products/${product_id}`, {
+        const response = await axios.get<Album>(`/products/${product_id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -73,12 +73,12 @@ export async function getProductById(token: string, product_id: string) {
 
 export async function createProduct(
     token: string,
-    product: Product,
-): Promise<Product> {
+    product: Album,
+): Promise<Album> {
     setBaseUrl();
 
     try {
-        const response = await axios.post<Product>(
+        const response = await axios.post<Album>(
             '/products/create',
             product,
             {

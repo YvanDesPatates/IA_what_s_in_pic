@@ -6,7 +6,7 @@ import {
 import Earnings from '../../views/Earnings';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Home from '../../views/Home';
-import AddProduct from '../../views/AddProduct';
+import UploadPhoto from '../../views/UploadPhoto';
 
 interface screenOptionsProps {
     route: {
@@ -53,7 +53,7 @@ const NavigationBar = () => {
     return (
         <Tab.Navigator initialRouteName="Home" screenOptions={navigatorOptions}>
             <Tab.Screen name="Home" component={Home} />
-            <Tab.Screen name="Add" component={AddProduct} />
+            {/* <Tab.Screen name="Add" component={UploadPhoto} /> */}
             <Tab.Screen name="Earnings" component={Earnings} />
         </Tab.Navigator>
     );

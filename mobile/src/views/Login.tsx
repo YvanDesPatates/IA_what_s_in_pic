@@ -19,6 +19,7 @@ import Callout from '../components/Callout';
 import {accessTokenChanged, userProfileChanged} from '../stores/user/userSlice';
 import {useDispatch} from 'react-redux';
 import {getProfile} from '../services/user/user.service';
+import {LoginPayload} from '../types/auth';
 
 type LoginProps = {
     navigation: BottomTabNavigationProp<any>;
@@ -60,40 +61,43 @@ const styles = StyleSheet.create({
 });
 
 const Login = ({navigation}: LoginProps) => {
-    const [username, setUsername] = React.useState('');
-    const [password, setPassword] = React.useState('');
+    const [username, setUsername] = React.useState('test@gmail.com');
+    const [password, setPassword] = React.useState('test');
     const [error, setError] = React.useState('');
     const dispatch = useDispatch();
 
     const {mutate: loginMutation, isPending: isLoginPending} = useMutation({
-        mutationFn: (data: {username: string; password: string}) =>
-            login(data.username, data.password),
+        mutationFn: (loginPayload: LoginPayload) => login(loginPayload),
         onSuccess: async data => {
-            dispatch(accessTokenChanged(data.access_token));
-            try {
-                const profile = await getProfile(data.access_token);
-                dispatch(userProfileChanged(profile));
-                navigation.reset({
-                    index: 0,
-                    routes: [{name: 'Tabs'}],
-                });
-            } catch (err: any) {
-                setError(err.message);
+            if (data.email === username) {
+                // dispatch(accessTokenChanged(data.access_token));
+                try {
+                    // const profile = await getProfile(data.access_token);
+                    // dispatch(userProfileChanged(profile));
+                    navigation.reset({
+                        index: 0,
+                        routes: [{name: 'Tabs'}],
+                    });
+                } catch (err: any) {
+                    setError(err.message);
+                }
             }
         },
         onError: err => {
+            console.log(err);
+
             setError(err.message);
         },
     });
 
     const processLogin = () => {
         setError('');
-        // loginMutation({username, password});
+        loginMutation({email: username, pwd: password});
         // TODO: REMOVE THIS
-        navigation.reset({
-            index: 0,
-            routes: [{name: 'Tabs'}],
-        });
+        // navigation.reset({
+        //     index: 0,
+        //     routes: [{name: 'Tabs'}],
+        // });
     };
 
     const redirectRegister = () => {

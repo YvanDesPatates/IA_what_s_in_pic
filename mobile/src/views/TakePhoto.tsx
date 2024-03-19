@@ -12,11 +12,9 @@ import {
 } from 'react-native-vision-camera';
 import Callout from '../components/Callout';
 import Button from '../components/Button';
-import {useMutation} from '@tanstack/react-query';
 import {useDispatch, useSelector} from 'react-redux';
 import {selectUser} from '../stores/user/userSlice';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {uploadImage} from '../services/image/image.service';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import defaultTheme from '../themes/defaultTheme';
 import fs from 'react-native-fs';
@@ -117,22 +115,11 @@ const TakePhoto = ({navigation}: TakePhotoProps) => {
         photoPathRef.current = photoPath;
     }, [photoPath]);
 
-    const {mutate: productsMutation} = useMutation({
-        mutationFn: (data: {token: string; image_path: string}) =>
-            uploadImage(''),
-        onSuccess: data => {
-            console.log(data);
-        },
-        onError: error => {
-            console.log(error);
-        },
-    });
-
     const uploadPhoto = () => {
         if (takenPhoto) {
-            productsMutation({
-                token: user.access_token,
-                image_path: takenPhoto,
+            navigation.navigate('UploadPhoto', {
+                photo: takenPhoto,
+                photoSize: takenPhotoSizeText,
             });
         }
     };

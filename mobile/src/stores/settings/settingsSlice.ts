@@ -2,7 +2,7 @@ import {PayloadAction, createSelector, createSlice} from '@reduxjs/toolkit';
 import {Settings} from '../../types/settings';
 
 const initialState: Settings = {
-    serverUrl: 'http://localhost:8080/',
+    serverUrl: 'https://71e3-163-5-23-101.ngrok-free.app/'
 };
 
 const settingsSlice = createSlice({

@@ -6,15 +6,11 @@ import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import LayoutContainer from '../components/Layout/LayoutContainer';
 import {FlatList, RefreshControl, TouchableOpacity} from 'react-native';
 import {Dimensions, StyleSheet, Text, View} from 'react-native';
-import ProductItem from '../components/ProductItem';
-import {Product} from '../types/product';
-import {useSelector} from 'react-redux';
-import {selectCartItemsCount} from '../stores/cart/cartSlice';
-import LayoutTop from '../components/Layout/LayoutTop';
+import AlbumItem from '../components/AlbumItem';
 import defaultTheme from '../themes/defaultTheme';
 import {useQuery} from '@tanstack/react-query';
-import {getProducts} from '../services/product/product.service';
-import {selectUser} from '../stores/user/userSlice';
+import {getAlbums} from '../services/image/image.service';
+import AlbumListing from '../components/AlbumListing';
 
 type HomeProps = {
     navigation: BottomTabNavigationProp<any>;
@@ -56,11 +52,11 @@ const styles = StyleSheet.create({
 });
 
 const Home = ({navigation}: HomeProps) => {
-    const user = useSelector(selectUser);
+    // const user = useSelector(selectUser);
 
-    const openCart = () => {
-        navigation.navigate('Cart');
-    };
+    // const openCart = () => {
+    //     navigation.navigate('Cart');
+    // };
 
     const screenWidth = Dimensions.get('window').width;
     const numColumns = 2;
@@ -71,23 +67,30 @@ const Home = ({navigation}: HomeProps) => {
         screenWidth - (numColumns - 1) * gap - paddingHorizontal;
     const itemSize = availableSpace / numColumns;
 
-    const cartItemsCount = useSelector(selectCartItemsCount);
+    // const cartItemsCount = useSelector(selectCartItemsCount);
 
-    const defaultImage = require('../assets/yellow-chair.png');
-    // const products = useQuery<Product[]>({
-    //     queryKey: ['products'],
-    //     queryFn: getProducts,
-    // });
+    // const defaultImage = require('../assets/yellow-chair.png');
+    const albums = useQuery<any[]>({
+        queryKey: ['albums'],
+        queryFn: getAlbums,
+    });
 
-    const products = {
-        isFetching: false,
-        refetch: () => {},
-        data: [
-            {
-                id: 1,
-                photo: '/images.png',
-            },
-        ],
+    // const albums = {
+    //     isFetching: false,
+    //     refetch: () => {},
+    //     data: [
+    //         {
+    //             id: 1,
+    //             name: 'My album',
+    //             // photo: '/images.png',
+    //         },
+    //     ],
+    // };
+
+    const onAlbumSelected = (album: any) => {
+        navigation.navigate('Album', {
+            album,
+        });
     };
 
     return (
@@ -105,49 +108,25 @@ const Home = ({navigation}: HomeProps) => {
                 </TouchableOpacity>
             </LayoutTop> */}
             <LayoutContainer>
-                <LayoutHeader title="Your" subTitle="Images" noBottomMargin>
+                <LayoutHeader title="Your" subTitle="Albums" noBottomMargin>
                     <TouchableOpacity
                         style={styles.qrButton}
                         onPress={() => {
-                            navigation.navigate('QR');
+                            navigation.navigate('TakePhoto');
                         }}>
                         <Text style={styles.qrButtonText}>Take a photo</Text>
                         <Ionicons name="camera" size={28} color="black" />
                     </TouchableOpacity>
                 </LayoutHeader>
 
-                <View style={styles.productView}>
-                    <FlatList
-                        refreshControl={
-                            <RefreshControl
-                                enabled={true}
-                                refreshing={products.isFetching}
-                                onRefresh={products.refetch}
-                            />
-                        }
-                        overScrollMode="never"
-                        fadingEdgeLength={50}
-                        data={products.data?.map(product => ({
-                            ...product,
-                            photo:
-                                typeof product.photo === 'string'
-                                    ? defaultImage
-                                    : product.photo,
-                        }))}
-                        renderItem={productItem => (
-                            <></>
-                            // <ProductItem
-                            //     onDeleted={products.refetch}
-                            //     myProduct={
-                            //         user.id === productItem.item.seller_id
-                            //     }
-                            //     width={itemSize}
-                            //     product={productItem.item}
-                            // />
-                        )}
-                        numColumns={numColumns}
-                        contentContainerStyle={{gap}}
-                        columnWrapperStyle={{gap}}
+                <View
+                    style={{
+                        flex: 1,
+                        marginTop: 30,
+                    }}>
+                    <AlbumListing
+                        queryResult={albums}
+                        onAlbumSelected={onAlbumSelected}
                     />
                 </View>
             </LayoutContainer>
