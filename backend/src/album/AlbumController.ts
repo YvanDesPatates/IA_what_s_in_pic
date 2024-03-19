@@ -14,9 +14,9 @@ export class AlbumController {
         // Filter the albums to only show the albums from the user
         const selectedAlbums = albums.filter(
             (album) =>
-                album.creatorAccount.email === userConnected.email ||
-                album.invitedAccounts.some(
-                    (account) => account.email === userConnected.email
+                album.creatorAccountEmail === userConnected.email ||
+                album.invitedAccountsEmails.some(
+                    (account) => account === userConnected.email
                 )
         );
 
@@ -32,16 +32,16 @@ export class AlbumController {
 
     public async createAlbum(req: Request, res: Response): Promise<void> {
         const creator = req.user as AccountLogic;
-        const accountCreator = await AccountLogic.getAccount(creator.email);
-        let invitedAccounts: Array<AccountLogic> = [];
-        if (req.body.invitedAccountsEmail) {
-            invitedAccounts = await Promise.all(req.body.invitedAccountsEmail.map(
-                async (emailAccount: string) => await AccountLogic.getAccount(emailAccount)));
+        const invitedAccountsEmail: string[] = req.body.invitedAccountsEmails
+        if (invitedAccountsEmail && invitedAccountsEmail instanceof Array) {
+            for (const invitedAccount of invitedAccountsEmail) {
+                await AccountLogic.assertAccountExists(invitedAccount)
+            }
         }
         const albumToCreate: AlbumLogic = new AlbumLogic(
             req.body.name,
-            accountCreator,
-            invitedAccounts
+            creator.email,
+            invitedAccountsEmail ?? []
         );
         res.status(201).json(await albumToCreate.create());
     }
@@ -53,24 +53,24 @@ export class AlbumController {
         const creator = req.user as AccountLogic;
 
         // Check if the user is the creator of the album
-        if (albumToUpdate.creatorAccount.email !== creator.email) {
+        if (albumToUpdate.creatorAccountEmail !== creator.email) {
             throw new DisplayableJsonError(
                 403,
                 "You are not allowed to update this album"
             );
         }
 
-        let invitedAccounts: Array<AccountLogic> = [];
-        if (req.body.invitedAccountsEmail) {
-            invitedAccounts = await Promise.all(req.body.invitedAccountsEmail.map(
-                async (emailAccount: string) => await AccountLogic.getAccount(emailAccount)));
-            invitedAccounts.filter((account: AccountLogic) => account.email !== creator.email);
+        const invitedAccountsEmail = req.body.invitedAccountsEmails;
+        if (invitedAccountsEmail && invitedAccountsEmail instanceof Array) {
+            for (const invitedAccount of invitedAccountsEmail) {
+                await AccountLogic.assertAccountExists(invitedAccount)
+            }
         }
 
         const updatedAlbum: AlbumLogic = new AlbumLogic(
             req.body.name ?? albumToUpdate.name,
-            albumToUpdate.creatorAccount,
-            invitedAccounts ?? albumToUpdate.invitedAccounts,
+            albumToUpdate.creatorAccountEmail,
+            invitedAccountsEmail ?? albumToUpdate.invitedAccountsEmails,
             albumToUpdate.id
         );
         await updatedAlbum.update(idToUpdate);

@@ -82,6 +82,10 @@ export class AccountLogic implements LogicInterface {
         return await Promise.all(accounts.map(async account => account.toLogic()));
     }
 
+    static async assertAccountExists(email: string): Promise<void>{
+        await this.assertEmailExistsInDatabase(new AccountRestdbDAO(), email)
+    }
+
     //#endregion
 
     //#region private methods
