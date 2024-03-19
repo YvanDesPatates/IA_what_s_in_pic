@@ -30,6 +30,7 @@ export type NavigationStackParamList = {
         photoSize: number;
     };
     MyAlbums: {
+        creation: boolean;
         onSelect: (album: any) => void;
     };
     Album: {
