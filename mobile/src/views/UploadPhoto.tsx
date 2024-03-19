@@ -61,12 +61,11 @@ const styles = StyleSheet.create({
 });
 
 const UploadPhoto = ({navigation, route}: UploadPhotoProps) => {
-    const user = useSelector(selectUser);
-    const defaultImage = require('../assets/yellow-chair.png');
+    // const user = useSelector(selectUser);
+    // const defaultImage = require('../assets/yellow-chair.png');
 
     const [photoTime, setPhotoTime] = React.useState<Date>(new Date());
     const [imageName, setImageName] = React.useState<string>('');
-    const [description, setDescription] = React.useState<string>('');
     const [album, setAlbum] = React.useState<any>();
 
     type ProductCreation = Album & {seller_id: string};
@@ -125,7 +124,7 @@ const UploadPhoto = ({navigation, route}: UploadPhotoProps) => {
     //     });
     // };
 
-    const buttonValidation = imageName && description && album ? true : false;
+    const buttonValidation = imageName && album ? true : false;
 
     const onSelectAlbum = (album: any) => {
         setAlbum(album);
@@ -199,15 +198,6 @@ const UploadPhoto = ({navigation, route}: UploadPhotoProps) => {
                                 name="ProductName"
                                 icon="pricetag-outline"
                                 placeholder="Image name"
-                            />
-
-                            <Text>Description</Text>
-                            <InputTextField
-                                value={description}
-                                onChange={setDescription}
-                                name="Description"
-                                icon="pricetag-outline"
-                                placeholder="Description"
                             />
 
                             <Text>Album</Text>
