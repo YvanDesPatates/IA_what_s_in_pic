@@ -3,29 +3,28 @@ import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 import {LogicInterface} from "../LogicInterface";
 import {AlbumDTO} from "./AlbumDTO";
 import {AlbumDBModel} from "./AlbumDBModel";
-import {AccountLogic} from "../account/AccountLogic";
 import {AlbumRestdbDAO} from "./AlbumRestdbDAO";
 
 export class AlbumLogic implements LogicInterface {
   private _id?: string;
   private _name: string;
-  private _creatorAccount: AccountLogic;
-  private _invitedAccounts: AccountLogic[];
+  private _creatorAccountEmail: string;
+  private _invitedAccountsEmails: string[];
 
   private _albumDAO = new AlbumRestdbDAO();
 
   public constructor(
     name: string,
-    creatorAccount: AccountLogic,
-    invitedAccounts: AccountLogic[] = [],
+    creatorAccount: string,
+    invitedAccounts: string[] = [],
     id?: string
   ) {
     assertAttributeExists(name, "name");
     assertAttributeExists(creatorAccount, "creatorAccount");
 
     this._name = name;
-    this._creatorAccount = creatorAccount;
-    this._invitedAccounts = invitedAccounts;
+    this._creatorAccountEmail = creatorAccount;
+    this._invitedAccountsEmails = invitedAccounts;
     this._id = id;
   }
 
@@ -37,9 +36,8 @@ export class AlbumLogic implements LogicInterface {
     return {
       id: this._id,
       name: this._name,
-      creatorAccount: this._creatorAccount.getDisplayableCopy(),
-      invitedAccounts: this.invitedAccounts.map(
-          account => account.getDisplayableCopy())
+      creatorAccountEmail: this._creatorAccountEmail,
+      invitedAccountsEmails: this.invitedAccountsEmails
     };
   }
 
@@ -92,8 +90,8 @@ export class AlbumLogic implements LogicInterface {
   private toDBModel(): AlbumDBModel {
     return new AlbumDBModel(
       this._name,
-      this._creatorAccount.email,
-      this._invitedAccounts.map((account) => account.email),
+      this._creatorAccountEmail,
+      this._invitedAccountsEmails.map((account) => account),
       this._id
     );
   }
@@ -108,12 +106,12 @@ export class AlbumLogic implements LogicInterface {
     return this._name;
   }
 
-  get creatorAccount(): AccountLogic {
-    return this._creatorAccount;
+  get creatorAccountEmail(): string {
+    return this._creatorAccountEmail;
   }
 
-  get invitedAccounts(): AccountLogic[] {
-    return this._invitedAccounts;
+  get invitedAccountsEmails(): string[] {
+    return this._invitedAccountsEmails;
   }
   //#endregion
 }
