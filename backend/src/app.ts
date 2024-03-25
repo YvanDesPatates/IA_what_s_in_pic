@@ -8,6 +8,7 @@ import { ParsingResponseBodyMiddleware } from "./ParsingResponseBodyMiddleware";
 import { initPassport } from "./PassportAuthMiddleware";
 import passport from "passport";
 import { AlbumRoute } from "./album/AlbumRoute";
+import {ImageRoute} from "./image/ImageRoute";
 
 dotenv.config({ path: "../.env" });
 const port = process.env.PORT ?? 3000;
@@ -32,9 +33,12 @@ initPassport(app);
 
 const accountRoute = new AccountRoute();
 const albumRoute = new AlbumRoute();
+const imageRoute = new ImageRoute();
 
 app.use("/api/accounts", accountRoute.getRouter());
 app.use("/api/albums", albumRoute.getRouter());
+app.use("/api/images", imageRoute.getRouter());
+
 
 app.post(
   "/api/login",

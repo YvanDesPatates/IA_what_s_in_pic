@@ -14,7 +14,7 @@ export class ImageDBModel implements DBModelInterface {
     public tags: string[];
 
 
-    constructor(imageBytes: number[], name: string, date: string, creatorAccountEmail: string, albumIds: string[], tags: string[], id?: string) {
+    constructor(imageBytes: number[] | undefined, name: string, date: string, creatorAccountEmail: string, albumIds: string[], tags: string[], id?: string | undefined) {
         this.id = id;
         this.imageBytes = imageBytes;
         this.name = name;
@@ -28,9 +28,8 @@ export class ImageDBModel implements DBModelInterface {
         if (!this.id){
             throw new DisplayableJsonError(500, "impossible to parse data to ImageDBModel : missing required attributes. Check for data integrity");
         }
-        const creatorAccount = await AccountLogic.getAccount(this.creatorAccountEmail);
-        const albums = await Promise.all(this.albumIds.map(async albumId => await AlbumLogic.getAlbum(albumId)));
-        return new ImageLogic(this.name, this.date, creatorAccount, albums, this.tags, this.id);
+
+        return new ImageLogic(this.name, this.date, this.creatorAccountEmail, this.albumIds, this.tags, this.id);
     }
 
 }
