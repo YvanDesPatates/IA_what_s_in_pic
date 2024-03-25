@@ -6,7 +6,7 @@ package common
 
 // Node is a struct that represents a node in the Huffman Tree (each character in the input file is a Node)
 type Node struct {
-	Character rune
+	Character byte
 	Freq      int
 	Left      *Node
 	Right     *Node

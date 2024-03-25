@@ -42,12 +42,15 @@ func Compress(inFile string, outFile string) error {
 }
 
 // calculateFrequencies is a function that calculates the frequency of each character in the input file
-func calculateFrequencies(inFile *os.File) (map[rune]int, error) {
-	frequencyMap := make(map[rune]int)
-	reader := bufio.NewReader(io.Reader(inFile))
+func calculateFrequencies(inFile *os.File) (map[byte]int, error) {
+	frequencyMap := make(map[byte]int)
+	st, err := inFile.Stat()
+	if (err != nil) {return nil, err}
+	buffer := make([]byte, st.Size())
 
 	for {
-		char, _, err := reader.ReadRune()
+		// char, _, err := reader.ReadRune()
+		bytesRead, err := inFile.Read(buffer)
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -55,21 +58,25 @@ func calculateFrequencies(inFile *os.File) (map[rune]int, error) {
 				return nil, err
 			}
 		}
-		frequencyMap[char]++
+        for _, b := range buffer[:bytesRead] {
+            frequencyMap[b]++
+        }
 	}
 	return frequencyMap, nil
 }
 
 // compressData is a function that compresses the input file using the Huffman codes
-func compressData(inFile *os.File, codes map[rune]string) ([]byte, error) {
+func compressData(inFile *os.File, codes map[byte]string) ([]byte, error) {
 	var compressed bytes.Buffer
-	reader := bufio.NewReader(io.Reader(inFile))
+	reader := bufio.NewReader(inFile) // Pas besoin de io.Reader(inFile)
 
 	var currentByte byte = 0
 	var bitsFilled int = 0
 
 	flushBits := func() {
 		if bitsFilled > 0 {
+			// S'assure que le dernier byte est correctement aligné à gauche si nécessaire
+			currentByte <<= (8 - bitsFilled)
 			compressed.WriteByte(currentByte)
 			currentByte = 0
 			bitsFilled = 0
@@ -77,7 +84,7 @@ func compressData(inFile *os.File, codes map[rune]string) ([]byte, error) {
 	}
 
 	for {
-		char, _, err := reader.ReadRune()
+		b, err := reader.ReadByte()
 		if err != nil {
 			if err == io.EOF {
 				fmt.Println("End of file")
@@ -87,12 +94,12 @@ func compressData(inFile *os.File, codes map[rune]string) ([]byte, error) {
 			}
 		}
 
-		code := codes[char]
-		fmt.Printf("Write %c -> codes[char] %s\n", char, code)
+		code := codes[b] // Utilisez le byte directement pour obtenir le code
+		// Pas de conversion char -> code, donc pas de printf nécessaire ici, mais vous pouvez déboguer si nécessaire
 		for _, bit := range code {
 			if bit == '1' {
 				currentByte = (currentByte << 1) | 1
-			} else {
+			} else { // '0'
 				currentByte <<= 1
 			}
 			bitsFilled++

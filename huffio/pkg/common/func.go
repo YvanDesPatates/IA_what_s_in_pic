@@ -6,12 +6,12 @@ import (
 )
 
 // BuildTree is a function that builds the Huffman Tree from the input file, with frequency of each character
-func BuildTree(frequencies map[rune]int) *Tree {
+func BuildTree(frequencies map[byte]int) *Tree {
 	var h Heap
 	heap.Init(&h)
 
 	for c, f := range frequencies {
-		heap.Push(&h, &Node{Character: c, Freq: f})
+		heap.Push(&h, &Node{Character: byte(c), Freq: f})
 	}
 
 	for h.Len() > 1 {
@@ -32,8 +32,8 @@ func BuildTree(frequencies map[rune]int) *Tree {
 }
 
 // GenerateCodes is a function that generates the Huffman codes for each character in the input file
-func GenerateCodes(tree *Tree) map[rune]string {
-	codes := make(map[rune]string)
+func GenerateCodes(tree *Tree) map[byte]string {
+	codes := make(map[byte]string)
 	var generate func(node *Node, code string)
 
 	generate = func(node *Node, code string) {
