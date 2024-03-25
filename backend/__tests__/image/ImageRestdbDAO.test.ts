@@ -3,7 +3,7 @@ import fs from "fs";
 import {ImageRestdbDAO} from "../../src/image/ImageRestdbDAO";
 import dotenv from "dotenv";
 
-dotenv.config({ path: "../.env.test" });
+dotenv.config({ path: "../.env" });
 
 
 describe("AccountLogic.ts tests", () => {
