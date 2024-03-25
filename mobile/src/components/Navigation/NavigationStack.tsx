@@ -36,6 +36,7 @@ export type NavigationStackParamList = {
     };
     Album: {
         album: any;
+        onRefresh: (album: any) => void;
     };
 };
 

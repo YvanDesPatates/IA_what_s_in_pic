@@ -4,14 +4,13 @@ import LayoutHeader from '../components/Layout/LayoutHeader';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import LayoutContainer from '../components/Layout/LayoutContainer';
-import {
-    TouchableOpacity,
-} from 'react-native';
-import {Dimensions, StyleSheet, Text, View} from 'react-native';
+import {TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import defaultTheme from '../themes/defaultTheme';
-import {useQuery} from '@tanstack/react-query';
-import {getAlbums} from '../services/image/image.service';
+import {useMutation, useQuery} from '@tanstack/react-query';
 import AlbumListing from '../components/AlbumListing';
+import {createAlbum, getAlbums} from '../services/album/album.service';
+import Callout from '../components/Callout';
 
 type HomeProps = {
     navigation: BottomTabNavigationProp<any>;
@@ -59,38 +58,45 @@ const Home = ({navigation}: HomeProps) => {
     //     navigation.navigate('Cart');
     // };
 
-    const screenWidth = Dimensions.get('window').width;
-    const numColumns = 2;
-    const gap = 5;
-    const paddingHorizontal = 30 * 2;
+    // const screenWidth = Dimensions.get('window').width;
+    // const numColumns = 2;
+    // const gap = 5;
+    // const paddingHorizontal = 30 * 2;
 
-    const availableSpace =
-        screenWidth - (numColumns - 1) * gap - paddingHorizontal;
-    const itemSize = availableSpace / numColumns;
+    // const availableSpace =
+    //     screenWidth - (numColumns - 1) * gap - paddingHorizontal;
+    // const itemSize = availableSpace / numColumns;
 
-    // const cartItemsCount = useSelector(selectCartItemsCount);
+    const [lastDeleted, setLastDeleted] = React.useState<any>(null);
 
-    // const defaultImage = require('../assets/yellow-chair.png');
     const albums = useQuery<any[]>({
         queryKey: ['albums'],
         queryFn: getAlbums,
     });
 
-    // const albums = {
-    //     isFetching: false,
-    //     refetch: () => {},
-    //     data: [
-    //         {
-    //             id: 1,
-    //             name: 'My album',
-    //             // photo: '/images.png',
-    //         },
-    //     ],
-    // };
-
     const onAlbumSelected = (album: any) => {
         navigation.navigate('Album', {
             album,
+            onRefresh: (album: any) => {
+                albums.refetch();
+                setLastDeleted(album);
+            },
+        });
+    };
+
+    const creationMutation = useMutation({
+        mutationFn: (album: any) => createAlbum(album),
+        onError: err => {
+            console.log(err);
+        },
+        onSuccess: () => {
+            albums.refetch();
+        },
+    });
+
+    const onCreateNewAlbum = (album: any) => {
+        creationMutation.mutate({
+            ...album,
         });
     };
 
@@ -122,16 +128,18 @@ const Home = ({navigation}: HomeProps) => {
 
                 <View
                     style={{
+                        pointerEvents: creationMutation.isPending
+                            ? 'none'
+                            : 'auto',
+                        opacity: creationMutation.isPending ? 0.2 : 1,
                         flex: 1,
                         marginTop: 30,
                     }}>
                     <TouchableOpacity
                         onPress={() => {
                             navigation.navigate('MyAlbums', {
-                                creation: true,
-                                onSelect: (album: any) => {
-                                    console.log('Album created', album);
-                                },
+                                creation: 'new',
+                                onSelect: onCreateNewAlbum,
                             });
                         }}
                         style={{
@@ -157,6 +165,68 @@ const Home = ({navigation}: HomeProps) => {
                         }}>
                         <Ionicons name="add" size={28} color="white" />
                     </TouchableOpacity>
+
+                    {creationMutation.isSuccess && (
+                        <View
+                            style={{
+                                marginBottom: 20,
+                            }}>
+                            <Callout
+                                title="Album created"
+                                type="success"
+                                dismissablePress={() => {
+                                    creationMutation.reset();
+                                }}>
+                                <Text>
+                                    Your album was created successfully.
+                                </Text>
+                            </Callout>
+                        </View>
+                    )}
+
+                    {albums.isError && (
+                        <View
+                            style={{
+                                marginBottom: 20,
+                            }}>
+                            <Callout
+                                title="Error"
+                                type="danger"
+                                dismissablePress={() => {
+                                    albums.refetch();
+                                }}>
+                                <Text>
+                                    An error occurred while fetching albums. Tap
+                                    to retry.
+                                </Text>
+                            </Callout>
+                        </View>
+                    )}
+
+                    {lastDeleted && (
+                        <View
+                            style={{
+                                marginBottom: 20,
+                            }}>
+                            <Callout
+                                title="Album deleted"
+                                type="danger"
+                                dismissablePress={() => {
+                                    setLastDeleted(null);
+                                }}>
+                                <Text>
+                                    <Text
+                                        style={{
+                                            fontWeight: 'bold',
+                                        }}>
+                                        {lastDeleted.name}
+                                    </Text>{' '}
+                                    was deleted successfully.
+                                </Text>
+                            </Callout>
+                        </View>
+                    )}
+
                     <AlbumListing
                         queryResult={albums}
                         onAlbumSelected={onAlbumSelected}

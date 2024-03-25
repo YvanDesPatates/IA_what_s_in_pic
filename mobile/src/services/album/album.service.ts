@@ -35,3 +35,33 @@ export const createAlbum = async (album: any): Promise<any> =>
         }
     });
 
+export const updateAlbum = async (album: any): Promise<any> =>
+    withErrorCatch(async () => {
+        setBaseUrl();
+
+        const response = await axios.put(`/api/albums/${album.id}`, album);
+
+        if (response.status === 200 || response.status === 201) {
+            return response.data;
+        } else {
+            throw new Error(
+                `updateAlbum failed with status code: ${response.status}`,
+            );
+        }
+    });
+
+export const deleteAlbum = async (album: any): Promise<any> =>
+    withErrorCatch(async () => {
+        setBaseUrl();
+
+        const response = await axios.delete(`/api/albums/${album.id}`);
+
+        if (response.status === 200 || response.status === 201) {
+            return response.data;
+        } else {
+            throw new Error(
+                `deleteAlbum failed with status code: ${response.status}`,
+            );
+        }
+    });
+
