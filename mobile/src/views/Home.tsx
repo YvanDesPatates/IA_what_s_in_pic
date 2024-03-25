@@ -11,6 +11,7 @@ import {useMutation, useQuery} from '@tanstack/react-query';
 import AlbumListing from '../components/AlbumListing';
 import {createAlbum, getAlbums} from '../services/album/album.service';
 import Callout from '../components/Callout';
+import LayoutTop from '../components/Layout/LayoutTop';
 
 type HomeProps = {
     navigation: BottomTabNavigationProp<any>;
@@ -100,20 +101,40 @@ const Home = ({navigation}: HomeProps) => {
         });
     };
 
+    const onLogout = () => {
+        navigation.reset({
+            index: 0,
+            routes: [{name: 'Login'}],
+        });
+    };
+
     return (
         <Layout>
-            {/* <LayoutTop>
-                <View />
-                <TouchableOpacity onPress={openCart}>
-                    <Ionicons
-                        style={styles.cartIcon}
-                        name="cart-outline"
-                        size={28}
-                        color="black"
-                    />
-                    <Text style={styles.cartBadge}>{cartItemsCount}</Text>
+            <LayoutTop>
+                <TouchableOpacity onPress={onLogout}>
+                    <View
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            gap: 15,
+                            alignItems: 'center',
+                        }}>
+                        <Ionicons
+                            style={styles.cartIcon}
+                            name="log-out-outline"
+                            size={28}
+                            color="indianred"
+                        />
+                        <Text
+                            style={{
+                                fontSize: defaultTheme.fontSize.normal,
+                                color: 'indianred',
+                            }}>
+                            Se déconnecter
+                        </Text>
+                    </View>
                 </TouchableOpacity>
-            </LayoutTop> */}
+            </LayoutTop>
             <LayoutContainer>
                 <LayoutHeader title="Your" subTitle="Albums" noBottomMargin>
                     <TouchableOpacity
