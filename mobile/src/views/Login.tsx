@@ -65,7 +65,7 @@ const Login = ({navigation}: LoginProps) => {
     const {mutate: loginMutation, isPending: isLoginPending} = useMutation({
         mutationFn: (loginPayload: LoginPayload) => login(loginPayload),
         onSuccess: async data => {
-            if (data.email === username) {
+            if (data && data.email === username) {
                 // dispatch(accessTokenChanged(data.access_token));
                 try {
                     // const profile = await getProfile(data.access_token);
@@ -80,9 +80,14 @@ const Login = ({navigation}: LoginProps) => {
             }
         },
         onError: err => {
-            console.log(err);
-
-            setError(err.message);
+            if (err instanceof Error) {
+                try {
+                    const errorMsg = JSON.parse(err.message);
+                    setError(errorMsg?.message);
+                } catch (e) {
+                    setError(err.message);
+                }
+            }
         },
     });
 

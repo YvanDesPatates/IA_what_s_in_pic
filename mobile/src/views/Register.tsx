@@ -86,7 +86,14 @@ const Register = ({navigation}: RegisterProps) => {
             }
         },
         onError: err => {
-            setError(err.message);
+            if (err instanceof Error) {
+                try {
+                    const errorMsg = JSON.parse(err.message);
+                    setError(errorMsg?.message);
+                } catch (e) {
+                    setError(err.message);
+                }
+            }
         },
     });
 

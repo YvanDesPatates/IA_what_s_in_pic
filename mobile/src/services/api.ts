@@ -20,25 +20,22 @@ export function setAxiosBaseUrlFromSettings() {
 }
 
 export function withErrorCatch(callback: any) {
-    return callback()
-        .catch((error: any) => {
-            // @ts-ignore
-            const errorResponse = JSON.stringify(error?.response?.data);
-            if (axios.isAxiosError(error)) {
-                if (error.response?.status === 401) {
-                    throw new Error(`Unauthorized access ${errorResponse}`);
-                } else {
-                    throw new Error(
-                        `An error occurred during the process: ${errorResponse}`,
-                    );
-                }
+    return callback().catch((error: any) => {
+        // @ts-ignore
+        const errorResponse = JSON.stringify(error?.response?.data);
+        if (axios.isAxiosError(error)) {
+            if (
+                error.response?.status === 401 ||
+                error.response?.status === 400
+            ) {
+                throw new Error(errorResponse);
+            } else if (error.response?.status === 429) {
+                throw new Error('Too many requests. Please try again later.');
             } else {
-                throw new Error(
-                    `An unexpected error occurred: ${errorResponse}`,
-                );
+                throw new Error(errorResponse);
             }
-        })
-        .catch((error: any) => {
-            console.error(error);
-        });
+        } else {
+            throw new Error(`An unexpected error occurred: ${errorResponse}`);
+        }
+    });
 }
