@@ -1,36 +1,37 @@
 import axios from 'axios';
-import {setAxiosBaseUrlFromSettings} from '../api';
+import {setAxiosBaseUrlFromSettings, withErrorCatch} from '../api';
 
 function setBaseUrl() {
     setAxiosBaseUrlFromSettings();
 }
 
-export async function getAlbums(): Promise<any[]> {
-    setBaseUrl();
+export const getAlbums = async (): Promise<any[]> =>
+    withErrorCatch(async () => {
+        setBaseUrl();
 
-    try {
         const response = await axios.get('/api/albums');
 
         if (response.status === 200 || response.status === 201) {
-            console.log(response.data);
-
             return response.data;
         } else {
             throw new Error(
-                `Login failed with status code: ${response.status}`,
+                `getAlbums failed with status code: ${response.status}`,
             );
         }
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response?.status === 401) {
-                throw new Error('Unauthorized access');
-            } else {
-                throw new Error(
-                    `An error occurred during the login process: ${error.message}`,
-                );
-            }
+    });
+
+export const createAlbum = async (album: any): Promise<any> =>
+    withErrorCatch(async () => {
+        setBaseUrl();
+
+        const response = await axios.post('/api/albums', album);
+
+        if (response.status === 200 || response.status === 201) {
+            return response.data;
         } else {
-            throw new Error(`An unexpected error occurred: ${error}`);
+            throw new Error(
+                `createAlbum failed with status code: ${response.status}`,
+            );
         }
-    }
-}
+    });
+
