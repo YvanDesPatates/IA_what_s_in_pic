@@ -1,6 +1,5 @@
 import {useQuery} from '@tanstack/react-query';
 import AlbumListing from '../components/AlbumListing';
-import {getAlbums} from '../services/image/image.service';
 import React from 'react';
 import Layout from '../components/Layout/Layout';
 import LayoutTop from '../components/Layout/LayoutTop';
@@ -14,13 +13,21 @@ import {NavigationStackParamList} from '../components/Navigation/NavigationStack
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Callout from '../components/Callout';
+import {getAlbums} from '../services/album/album.service';
 
 type MyAlbumsProps = BottomTabScreenProps<NavigationStackParamList, 'MyAlbums'>;
 
 const MyAlbums = ({navigation, route}: MyAlbumsProps) => {
-    const {creation, onSelect} = route.params;
+    const {album, creation, onSelect} = route.params;
 
-    const [newAlbumName, setNewAlbumName] = React.useState('');
+    const hasAlbum = album !== undefined;
+    const isCreating = creation === 'new';
+    const isRenewing = creation === 'edit';
+    const isChoosing = creation === 'choose';
+
+    const [newAlbumName, setNewAlbumName] = React.useState(
+        (hasAlbum && album.name) || '',
+    );
     const [participants, setParticipants] = React.useState<string[]>([]);
     const [isEmailsValid, setIsEmailsValid] = React.useState<boolean>(true);
 
@@ -49,7 +56,12 @@ const MyAlbums = ({navigation, route}: MyAlbumsProps) => {
             }
         }
 
-        onSelect({name: newAlbumName, new: true, participants});
+        onSelect({
+            id: hasAlbum ? album.id : undefined,
+            name: newAlbumName,
+            new: isCreating,
+            participants,
+        });
         navigation.goBack();
     };
 
@@ -63,6 +75,15 @@ const MyAlbums = ({navigation, route}: MyAlbumsProps) => {
         setParticipants(newParticipants);
     };
 
+    const onDeleteAlbum = () => {
+        onSelect({
+            id: album.id,
+            name: undefined,
+            new: false,
+        });
+        navigation.goBack();
+    };
+
     return (
         <Layout>
             <LayoutTop>
@@ -73,7 +94,9 @@ const MyAlbums = ({navigation, route}: MyAlbumsProps) => {
                         fontWeight: 'bold',
                         color: 'black',
                     }}>
-                    {creation ? 'Create new album' : 'Choose an album'}
+                    {isCreating && 'Create new album'}
+                    {isRenewing && 'Edit album'}
+                    {isChoosing && 'Choose an album'}
                 </Text>
             </LayoutTop>
             <LayoutContainer>
@@ -83,7 +106,7 @@ const MyAlbums = ({navigation, route}: MyAlbumsProps) => {
                         flexDirection: 'column',
                         gap: 15,
                     }}>
-                    {!creation && <Text>I want to create a new album</Text>}
+                    {isCreating && <Text>I want to create a new album</Text>}
                     <InputTextField
                         name="albumName"
                         placeholder="Album name"
@@ -161,12 +184,21 @@ const MyAlbums = ({navigation, route}: MyAlbumsProps) => {
                         onPress={() => addParticipant()}
                     />
                     <Button
-                        content="Create new album"
+                        content={
+                            isCreating || isChoosing
+                                ? 'Create album'
+                                : 'Save changes'
+                        }
                         onPress={onCreateNewAlbum}
+                    />
+                    <Button
+                        content={'Delete album'}
+                        color="indianred"
+                        onPress={onDeleteAlbum}
                     />
                 </View>
 
-                {!creation && (
+                {isChoosing && (
                     <View
                         style={{
                             display: 'flex',
