@@ -1,4 +1,4 @@
-import {RestdbDAO} from "../RestdbDAO";
+import {RestdbDAO} from "../DAOs/RestdbDAO";
 import {AlbumDBModel} from "./AlbumDBModel";
 
 export class AlbumRestdbDAO extends RestdbDAO<AlbumDBModel>{

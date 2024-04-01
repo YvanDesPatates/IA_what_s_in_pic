@@ -1,4 +1,4 @@
-import {DBModelInterface} from "../DBModelInterface";
+import {DBModelInterface} from "../DAOs/DBModelInterface";
 import {AccountLogic} from "./AccountLogic";
 import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 

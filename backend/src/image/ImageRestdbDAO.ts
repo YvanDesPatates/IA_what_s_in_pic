@@ -1,4 +1,4 @@
-import {RestdbDAO} from "../RestdbDAO";
+import {RestdbDAO} from "../DAOs/RestdbDAO";
 import {ImageDBModel} from "./ImageDBModel";
 import * as fs from "fs";
 import {MissingAttributeError} from "../displayableErrors/MissingAttributeError";

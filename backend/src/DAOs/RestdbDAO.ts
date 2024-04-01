@@ -1,4 +1,4 @@
-import {DisplayableJsonError} from "./displayableErrors/DisplayableJsonError";
+import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 import {DBModelInterface} from "./DBModelInterface";
 import axios, {AxiosRequestConfig} from "axios";
 import {DAOInterface} from "./DAOInterface";

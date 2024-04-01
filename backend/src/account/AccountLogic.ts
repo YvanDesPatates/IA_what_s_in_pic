@@ -5,7 +5,7 @@ import {LogicInterface} from "../LogicInterface";
 import {AccountDTO} from "./AccountDTO";
 import {AccountDBModel} from "./AccountDBModel";
 import {AccountRestdbDAO} from "./AccountRestdbDAO";
-import {DAOInterface} from "../DAOInterface";
+import {DAOInterface} from "../DAOs/DAOInterface";
 
 export class AccountLogic implements LogicInterface {
     private _email: string;

@@ -1,4 +1,4 @@
-import {DBModelInterface} from "../DBModelInterface";
+import {DBModelInterface} from "../DAOs/DBModelInterface";
 import {AlbumLogic} from "./AlbumLogic";
 import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 

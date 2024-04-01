@@ -1,4 +1,4 @@
-import {RestdbDAO} from "../RestdbDAO";
+import {RestdbDAO} from "../DAOs/RestdbDAO";
 import {AccountDBModel} from "./AccountDBModel";
 
 export class AccountRestdbDAO extends RestdbDAO<AccountDBModel> {
