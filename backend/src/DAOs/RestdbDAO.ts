@@ -29,7 +29,7 @@ export abstract class RestdbDAO<T extends DBModelInterface> implements DAOInterf
         }
     }
 
-    public async getById(id: string): Promise<T | null> {
+    public async getById(id: string): Promise<T> {
         const config = this.DBconfig;
         config.method = 'get';
         config.url = this.collectionUrl + '/' + id;
@@ -37,7 +37,7 @@ export abstract class RestdbDAO<T extends DBModelInterface> implements DAOInterf
             const response = await axios(config);
             return this.parseAnyFromDB(response.data);
         } catch (e) {
-            return null;
+            throw new DisplayableJsonError(500, "RestDbDAO error when getting resource");
         }
     }
 
