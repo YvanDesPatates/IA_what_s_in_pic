@@ -1,12 +1,25 @@
 version: "3.8"
 
 services:
-  mobile:
-    build: ./mobile
+
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ADMIN_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ADMIN_PASSWORD}
     volumes:
-      - mobile-volume:/mobile
-      - tmp-volume:/tmp
-      # - ./tmp:/mobile-volume
+      - mongo-volume:/data/db
+    ports:
+      - "27017:27017"
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ADMIN_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ADMIN_PASSWORD}
+      ME_CONFIG_MONGODB_URL: ${MONGODB_URL}
 
   api:
     build : ./backend
@@ -19,5 +32,4 @@ services:
       - ${PORT}:${PORT}
 
 volumes:
-  mobile-volume:
-  tmp-volume:
+  mongo-volume:

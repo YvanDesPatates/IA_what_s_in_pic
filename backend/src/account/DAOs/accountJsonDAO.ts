@@ -1,5 +1,5 @@
-import {JsonDAO} from "../JsonDAO";
-import {AccountDBModel} from "./AccountDBModel";
+import {JsonDAO} from "../../DAOs/JsonDAO";
+import {AccountDBModel} from "../AccountDBModel";
 
 export class AccountJsonDAO extends JsonDAO<AccountDBModel> {
     getFileName(): string {

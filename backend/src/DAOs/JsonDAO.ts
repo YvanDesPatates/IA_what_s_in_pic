@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import {DisplayableJsonError} from "./displayableErrors/DisplayableJsonError";
+import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 import {DAOInterface} from "./DAOInterface";
 import {DBModelInterface} from "./DBModelInterface";
 

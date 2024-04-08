@@ -1,4 +1,4 @@
-import {JsonDAO} from "../JsonDAO";
+import {JsonDAO} from "../DAOs/JsonDAO";
 import {AlbumDBModel} from "./AlbumDBModel";
 
 export class AlbumJsonDAO extends JsonDAO<AlbumDBModel> {
