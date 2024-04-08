@@ -4,15 +4,16 @@ import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 import {LogicInterface} from "../LogicInterface";
 import {AccountDTO} from "./AccountDTO";
 import {AccountDBModel} from "./AccountDBModel";
-import {AccountRestdbDAO} from "./AccountRestdbDAO";
+import {AccountRestdbDAO} from "./DAOs/AccountRestdbDAO";
 import {DAOInterface} from "../DAOs/DAOInterface";
+import {AccountMongoDAO} from "./DAOs/AccountMongoDAO";
 
 export class AccountLogic implements LogicInterface {
     private _email: string;
     private _name: string;
     private _pwd?: string;
 
-    private accountRestdbDAO: DAOInterface<AccountDBModel> = new AccountRestdbDAO();
+    private accountDAO: DAOInterface<AccountDBModel> = new AccountMongoDAO();
     private readonly _saltRounds: number = 10;
 
 
@@ -43,8 +44,8 @@ export class AccountLogic implements LogicInterface {
     public async create(): Promise<AccountLogic> {
         assertAttributeExists(this._pwd, "pwd");
         this._pwd = await bcrypt.hash(<string>this.pwd, this._saltRounds);
-        await this.assertEmailDoesNotExistsInDatabase(this._email);
-        const createdAccount = await this.accountRestdbDAO.create(this.toDBModel());
+            await this.assertEmailDoesNotExistsInDatabase(this._email);
+        const createdAccount = await this.accountDAO.create(this.toDBModel());
         return createdAccount.toLogic();
     }
 
@@ -53,14 +54,14 @@ export class AccountLogic implements LogicInterface {
      * @param actualEmail is the email of the account to update, after the update the email could be different
      */
     public async update(actualEmail: string): Promise<AccountLogic> {
-        await AccountLogic.assertEmailExistsInDatabase(this.accountRestdbDAO, actualEmail);
-        this.accountRestdbDAO.delete(actualEmail);
+        await AccountLogic.assertEmailExistsInDatabase(this.accountDAO, actualEmail);
+        this.accountDAO.delete(actualEmail);
         return this.create();
     }
 
     public async delete(): Promise<void> {
-        await AccountLogic.assertEmailExistsInDatabase(this.accountRestdbDAO, this._email);
-        if (!this.accountRestdbDAO.delete(this._email)) {
+        await AccountLogic.assertEmailExistsInDatabase(this.accountDAO, this._email);
+        if (!this.accountDAO.delete(this._email)) {
             throw new DisplayableJsonError(500, "Error when deleting account");
         }
     }
@@ -69,8 +70,8 @@ export class AccountLogic implements LogicInterface {
 
     //#region static methods
     public static async getAccount(email: string): Promise<AccountLogic> {
-        await AccountLogic.assertEmailExistsInDatabase(new AccountRestdbDAO(), email);
-        const account = await new AccountRestdbDAO().getById(email);
+        await AccountLogic.assertEmailExistsInDatabase(new AccountMongoDAO(), email);
+        const account = await new AccountMongoDAO().getById(email);
         if (!account) {
             throw new DisplayableJsonError(500, "Error when getting account");
         }
@@ -78,19 +79,19 @@ export class AccountLogic implements LogicInterface {
     }
 
     static async getAll(): Promise<AccountLogic[]> {
-        const accounts = await new AccountRestdbDAO().getAll();
+        const accounts = await new AccountMongoDAO().getAll();
         return await Promise.all(accounts.map(async account => account.toLogic()));
     }
 
     static async assertAccountExists(email: string): Promise<void>{
-        await this.assertEmailExistsInDatabase(new AccountRestdbDAO(), email)
+        await this.assertEmailExistsInDatabase(new AccountMongoDAO(), email);
     }
 
     //#endregion
 
     //#region private methods
     private async assertEmailDoesNotExistsInDatabase(email: string): Promise<void> {
-        if (await this.accountRestdbDAO.idExists(email)) {
+        if (await this.accountDAO.idExists(email)) {
             throw new DisplayableJsonError(409, "Account already exists with email " + email);
         }
     }
