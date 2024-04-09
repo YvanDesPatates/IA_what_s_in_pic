@@ -5,11 +5,11 @@ function setBaseUrl() {
     setAxiosBaseUrlFromSettings();
 }
 
-export const getAlbums = async (): Promise<any[]> =>
+export const getAlbum = async (albumId: string): Promise<any[]> =>
     withErrorCatch(async () => {
         setBaseUrl();
 
-        const response = await axios.get('/api/albums');
+        const response = await axios.get('/api/images/' + albumId);
 
         if (response.status === 200 || response.status === 201) {
             return response.data;
