@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
 });
 
 const Login = ({navigation}: LoginProps) => {
-    const [username, setUsername] = React.useState('test@gmail.com');
+    const [username, setUsername] = React.useState('creme@gmail.com');
     const [password, setPassword] = React.useState('test');
     const [error, setError] = React.useState('');
 

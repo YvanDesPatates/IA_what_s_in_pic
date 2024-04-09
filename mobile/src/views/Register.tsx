@@ -76,9 +76,9 @@ const Register = ({navigation}: RegisterProps) => {
                 try {
                     // const profile = await getProfile(data.access_token);
                     // dispatch(userProfileChanged(profile));
-                    navigation.reset({
+                        navigation.reset({
                         index: 0,
-                        routes: [{name: 'Tabs'}],
+                        routes: [{name: 'Login'}],
                     });
                 } catch (err: any) {
                     setError(err.message);
