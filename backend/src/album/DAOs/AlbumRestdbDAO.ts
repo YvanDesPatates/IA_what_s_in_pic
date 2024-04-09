@@ -1,5 +1,5 @@
-import {RestdbDAO} from "../DAOs/RestdbDAO";
-import {AlbumDBModel} from "./AlbumDBModel";
+import {RestdbDAO} from "../../DAOs/RestdbDAO";
+import {AlbumDBModel} from "../AlbumDBModel";
 
 export class AlbumRestdbDAO extends RestdbDAO<AlbumDBModel>{
     protected get collectionUrl(): string {
