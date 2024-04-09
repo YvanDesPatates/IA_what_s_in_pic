@@ -50,8 +50,10 @@ export abstract class MongoDAO<T extends DBModelInterface> implements DAOInterfa
         return Promise.resolve(id == id);
     }
 
-    getAll(): Promise<T[]> {
-        return Promise.resolve([]);
+    public async getAll(): Promise<T[]> {
+        const collection = await this.getCollection();
+        const result = await collection.find({}).toArray();
+        return result.map(result => this.parseAnyFromDB(result));
     }
 
     public async getById(id: string): Promise<T> {
