@@ -27,6 +27,7 @@ export type NavigationStackParamList = {
     TakePhoto: undefined;
     UploadPhoto: {
         photo: string;
+        photoPath: string;
         photoSize: number;
     };
     MyAlbums: {

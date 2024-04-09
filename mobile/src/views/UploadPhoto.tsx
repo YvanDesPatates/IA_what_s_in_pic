@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
     Image,
     KeyboardAvoidingView,
@@ -18,10 +18,10 @@ import InputTextField from '../components/InputTextField';
 import Button from '../components/Button';
 import {Album} from '../types/album';
 import {useSelector} from 'react-redux';
-import {selectUser} from '../stores/user/userSlice';
 import defaultTheme from '../themes/defaultTheme';
 import {NavigationStackParamList} from '../components/Navigation/NavigationStack';
-import {Buffer} from 'buffer';
+import {selectOpenedAlbum} from '../stores/settings/settingsSlice';
+import {ImageUpload, uploadImage} from '../services/image/image.service';
 
 type UploadPhotoProps = BottomTabScreenProps<
     NavigationStackParamList,
@@ -61,11 +61,11 @@ const styles = StyleSheet.create({
 });
 
 const UploadPhoto = ({navigation, route}: UploadPhotoProps) => {
-    // const user = useSelector(selectUser);
-    // const defaultImage = require('../assets/yellow-chair.png');
+    const openedAlbum = useSelector(selectOpenedAlbum);
 
     const [photoTime, setPhotoTime] = React.useState<Date>(new Date());
     const [imageName, setImageName] = React.useState<string>('');
+    const [imageTags, setImageTags] = React.useState<string>('');
     const [album, setAlbum] = React.useState<any>();
 
     type ProductCreation = Album & {seller_id: string};
@@ -130,10 +130,25 @@ const UploadPhoto = ({navigation, route}: UploadPhotoProps) => {
         setAlbum(album);
     };
 
-    const upload = () => {
-        const imageBytes = Buffer.from(route.params.photo, 'base64');
+    useEffect(() => {
+        onSelectAlbum(openedAlbum);
+    }, []);
 
-        // console.log('imageBytes', imageBytes);
+    const upload = () => {
+        const imageToUpload: ImageUpload = {
+            name: imageName,
+            path: route.params.photoPath,
+            date: new Date(),
+            albums: [album.id],
+            tags: imageTags.split(','),
+        };
+
+        uploadImage(imageToUpload);
+
+        navigation.reset({
+            index: 0,
+            routes: [{name: 'Tabs'}],
+        });
     };
 
     return (
@@ -168,14 +183,29 @@ const UploadPhoto = ({navigation, route}: UploadPhotoProps) => {
                                 style={{
                                     display: 'flex',
                                     justifyContent: 'space-between',
+                                    width: '60%',
                                 }}>
-                                <View>
+                                <View
+                                    style={{
+                                        overflow: 'hidden',
+                                    }}>
                                     <Text style={styles.imagePreviewText}>
                                         Photo taken on
                                     </Text>
                                     <Text style={styles.imagePreviewText}>
                                         {photoTime.toLocaleDateString()} at{' '}
                                         {photoTime.toLocaleTimeString()}
+                                    </Text>
+                                    <Text>
+                                        {route.params.photoPath.slice(0, 20)}...
+                                    </Text>
+                                    <Text>
+                                        {imageTags.length > 0 &&
+                                            'Tags: ' +
+                                                imageTags
+                                                    .split(',')
+                                                    .map(t => t.trim())
+                                                    .join(' - ')}
                                     </Text>
                                 </View>
                                 <Text style={{color: 'green'}}>
@@ -196,8 +226,17 @@ const UploadPhoto = ({navigation, route}: UploadPhotoProps) => {
                                 value={imageName}
                                 onChange={setImageName}
                                 name="ProductName"
-                                icon="pricetag-outline"
+                                icon="image-outline"
                                 placeholder="Image name"
+                            />
+
+                            <Text>Tags</Text>
+                            <InputTextField
+                                name="Tags"
+                                icon="pricetag-outline"
+                                placeholder="Tags"
+                                value={imageTags}
+                                onChange={setImageTags}
                             />
 
                             <Text>Album</Text>
@@ -218,6 +257,7 @@ const UploadPhoto = ({navigation, route}: UploadPhotoProps) => {
                                 onPress={() => {
                                     navigation.navigate('MyAlbums', {
                                         onSelect: onSelectAlbum,
+                                        creation: 'choose',
                                     });
                                 }}
                             />
@@ -240,23 +280,6 @@ const UploadPhoto = ({navigation, route}: UploadPhotoProps) => {
                     </View>
                 </LayoutContainer>
             </Layout>
-            {/* <Button
-                disabled={buttonValidation ? false : true}
-                color={buttonValidation ? defaultTheme.colors.primary : 'gray'}
-                textColor={buttonValidation ? 'black' : 'white'}
-                content={
-                    buttonValidation
-                        ? 'Upload my photo'
-                        : 'You must fill all fields to upload your photo'
-                }
-                disableBordersRadius={[
-                    'bottomLeft',
-                    'bottomRight',
-                    'topLeft',
-                    'topRight',
-                ]}
-                onPress={addProduct}
-            /> */}
         </KeyboardAvoidingView>
     );
 };

@@ -119,6 +119,7 @@ const TakePhoto = ({navigation}: TakePhotoProps) => {
         if (takenPhoto) {
             navigation.navigate('UploadPhoto', {
                 photo: takenPhoto,
+                photoPath: photoPath,
                 photoSize: takenPhotoSizeText,
             });
         }
