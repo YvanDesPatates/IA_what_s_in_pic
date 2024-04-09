@@ -3,7 +3,7 @@ import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 import {LogicInterface} from "../LogicInterface";
 import {AlbumDTO} from "./AlbumDTO";
 import {AlbumDBModel} from "./AlbumDBModel";
-import {AlbumRestdbDAO} from "./AlbumRestdbDAO";
+import {AlbumRestdbDAO} from "./DAOs/AlbumRestdbDAO";
 
 export class AlbumLogic implements LogicInterface {
   private _id?: string;
