@@ -4,7 +4,7 @@ import Layout from '../components/Layout/Layout';
 import LayoutTop from '../components/Layout/LayoutTop';
 import LayoutBackButton from '../components/Layout/LayoutBackButton';
 import LayoutContainer from '../components/Layout/LayoutContainer';
-import {Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import {NavigationStackParamList} from '../components/Navigation/NavigationStack';
 import PhotoListing from '../components/PhotoListing';
@@ -16,11 +16,29 @@ import {
     getAlbums,
     updateAlbum,
 } from '../services/album/album.service';
+import { useDispatch } from 'react-redux';
+import { settingsOpenedAlbumChanged } from '../stores/settings/settingsSlice';
 
 type MyAlbumsProps = BottomTabScreenProps<NavigationStackParamList, 'Album'>;
 
+const styles = StyleSheet.create({
+    qrButton: {
+        flexDirection: 'row',
+        gap: 10,
+        alignItems: 'center',
+    },
+    qrButtonText: {
+        fontSize: defaultTheme.fontSize.small,
+        color: 'black',
+        paddingBottom: 5,
+    },
+});
+
 const Album = ({navigation, route}: MyAlbumsProps) => {
+    const dispatch = useDispatch();
+
     const {album, onRefresh} = route.params;
+    console.log(album);
 
     const photos = useQuery<any[]>({
         queryKey: ['photos'],
@@ -108,11 +126,15 @@ const Album = ({navigation, route}: MyAlbumsProps) => {
                     title="Album"
                     subTitle={album.name}
                     noBottomMargin>
-                    <Ionicons
-                        name="images-outline"
-                        size={28}
-                        color={defaultTheme.colors.primary}
-                    />
+                    <TouchableOpacity
+                        style={styles.qrButton}
+                        onPress={() => {
+                            dispatch(settingsOpenedAlbumChanged(album))
+                            navigation.navigate('TakePhoto');
+                        }}>
+                        <Text style={styles.qrButtonText}>Take a photo</Text>
+                        <Ionicons name="camera" size={28} color="black" />
+                    </TouchableOpacity>
                 </LayoutHeader>
                 <View
                     style={{

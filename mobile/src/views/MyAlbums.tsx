@@ -191,11 +191,13 @@ const MyAlbums = ({navigation, route}: MyAlbumsProps) => {
                         }
                         onPress={onCreateNewAlbum}
                     />
-                    <Button
-                        content={'Delete album'}
-                        color="indianred"
-                        onPress={onDeleteAlbum}
-                    />
+                    {!isChoosing && !isCreating && (
+                        <Button
+                            content={'Delete album'}
+                            color="indianred"
+                            onPress={onDeleteAlbum}
+                        />
+                    )}
                 </View>
 
                 {isChoosing && (
