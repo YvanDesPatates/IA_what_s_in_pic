@@ -32,10 +32,10 @@ export class AlbumController {
 
     public async createAlbum(req: Request, res: Response): Promise<void> {
         const creator = req.user as AccountLogic;
-        const invitedAccountsEmail: string[] = req.body.invitedAccountsEmails
+        const invitedAccountsEmail: string[] = req.body.invitedAccountsEmails;
         if (invitedAccountsEmail && invitedAccountsEmail instanceof Array) {
             for (const invitedAccount of invitedAccountsEmail) {
-                await AccountLogic.assertAccountExists(invitedAccount)
+                await AccountLogic.assertAccountExists(invitedAccount);
             }
         }
         const albumToCreate: AlbumLogic = new AlbumLogic(
@@ -63,7 +63,7 @@ export class AlbumController {
         const invitedAccountsEmail = req.body.invitedAccountsEmails;
         if (invitedAccountsEmail && invitedAccountsEmail instanceof Array) {
             for (const invitedAccount of invitedAccountsEmail) {
-                await AccountLogic.assertAccountExists(invitedAccount)
+                await AccountLogic.assertAccountExists(invitedAccount);
             }
         }
 

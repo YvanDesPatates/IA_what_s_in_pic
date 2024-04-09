@@ -3,7 +3,8 @@ import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 import {LogicInterface} from "../LogicInterface";
 import {AlbumDTO} from "./AlbumDTO";
 import {AlbumDBModel} from "./AlbumDBModel";
-import {AlbumRestdbDAO} from "./AlbumRestdbDAO";
+import {AlbumMongoDAO} from "./DAOs/AlbumMongoDAO";
+import {DAOInterface} from "../DAOs/DAOInterface";
 
 export class AlbumLogic implements LogicInterface {
   private _id?: string;
@@ -11,7 +12,7 @@ export class AlbumLogic implements LogicInterface {
   private _creatorAccountEmail: string;
   private _invitedAccountsEmails: string[];
 
-  private _albumDAO = new AlbumRestdbDAO();
+  private _albumDAO = new AlbumMongoDAO();
 
   public constructor(
     name: string,
@@ -47,7 +48,7 @@ export class AlbumLogic implements LogicInterface {
   }
 
   public static async delete(id: string): Promise<void> {
-    const dao = new AlbumRestdbDAO();
+    const dao = new AlbumMongoDAO();
     await AlbumLogic.assertIdExistsInDatabase(dao, id);
     if (! await dao.delete(id.toString())) {
       throw new DisplayableJsonError(500, "Error when deleting album");
@@ -63,20 +64,20 @@ export class AlbumLogic implements LogicInterface {
 
     //#region static methods
     public static async getAlbum(id: string): Promise<AlbumLogic>{
-        await AlbumLogic.assertIdExistsInDatabase(new AlbumRestdbDAO(), id);
-        const album = await new AlbumRestdbDAO().getById(id.toString());
+        await AlbumLogic.assertIdExistsInDatabase(new AlbumMongoDAO(), id);
+        const album = await new AlbumMongoDAO().getById(id.toString());
         if ( ! album){ throw new DisplayableJsonError(500, "Error when getting album"); }
         return album.toLogic();
     }
 
     static async getAll(): Promise<AlbumLogic[]> {
-        const albums = await new AlbumRestdbDAO().getAll();
+        const albums = await new AlbumMongoDAO().getAll();
         return await Promise.all(albums.map(async album => await album.toLogic()));
     }
     //#endregion
 
   private static async assertIdExistsInDatabase(
-    albumDAO: AlbumRestdbDAO,
+    albumDAO: DAOInterface<AlbumDBModel>,
     id: string
   ): Promise<void> {
     if (! await albumDAO.idExists(id)) {
