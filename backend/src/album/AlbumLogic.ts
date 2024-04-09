@@ -3,7 +3,6 @@ import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 import {LogicInterface} from "../LogicInterface";
 import {AlbumDTO} from "./AlbumDTO";
 import {AlbumDBModel} from "./AlbumDBModel";
-import {AlbumRestdbDAO} from "./DAOs/AlbumRestdbDAO";
 import {AlbumMongoDAO} from "./DAOs/AlbumMongoDAO";
 import {DAOInterface} from "../DAOs/DAOInterface";
 

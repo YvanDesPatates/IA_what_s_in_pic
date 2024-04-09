@@ -1,7 +1,6 @@
-import express, { Router } from "express";
-import { ImageController } from "./ImageController";
-import { asyncWrapper } from "../displayableErrors/asyncWrapperErrorCatchingMiddleware";
-import { isAuthenticated } from "../PassportAuthMiddleware";
+import express, {Router} from "express";
+import {ImageController} from "./ImageController";
+import {asyncWrapper} from "../displayableErrors/asyncWrapperErrorCatchingMiddleware";
 
 export class ImageRoute {
 

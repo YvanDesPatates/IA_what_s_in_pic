@@ -1,7 +1,5 @@
 import {DBModelInterface} from "../DAOs/DBModelInterface";
 import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
-import {AccountLogic} from "../account/AccountLogic";
-import {AlbumLogic} from "../album/AlbumLogic";
 import {ImageLogic} from "./ImageLogic";
 
 export class ImageDBModel implements DBModelInterface {

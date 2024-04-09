@@ -4,7 +4,6 @@ import {DisplayableJsonError} from "../displayableErrors/DisplayableJsonError";
 import {LogicInterface} from "../LogicInterface";
 import {AccountDTO} from "./AccountDTO";
 import {AccountDBModel} from "./AccountDBModel";
-import {AccountRestdbDAO} from "./DAOs/AccountRestdbDAO";
 import {DAOInterface} from "../DAOs/DAOInterface";
 import {AccountMongoDAO} from "./DAOs/AccountMongoDAO";
 
