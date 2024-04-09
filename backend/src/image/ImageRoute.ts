@@ -1,27 +1,29 @@
 import express, { Router } from "express";
 import { ImageController } from "./ImageController";
 import { asyncWrapper } from "../displayableErrors/asyncWrapperErrorCatchingMiddleware";
-import { isAuthenticated } from "../PassportAuthMiddleware";
+import multer from "multer";
 
 export class ImageRoute {
+  private readonly router: Router = express.Router();
+  private readonly imageController: ImageController;
+  private readonly upload: multer.Multer;
 
-    private readonly router: Router = express.Router();
-    private readonly imageController: ImageController;
+  constructor() {
+    this.imageController = new ImageController();
+    const storage = multer.memoryStorage();
+    this.upload = multer({ storage: storage });
+    this.routes();
+  }
 
-    constructor() {
-        this.imageController = new ImageController();
-        this.routes();
-    }
+  getRouter() {
+    return this.router;
+  }
 
-    getRouter() {
-        return this.router;
-    }
-
-    private routes(): void {
-        this.router.post(
-            "/upload",
-            asyncWrapper(this.imageController.uploadImage, this.imageController)
-        );
-    }
-
+  private routes(): void {
+    this.router.post(
+      "/upload",
+      this.upload.single("image"),
+      asyncWrapper(this.imageController.uploadImage, this.imageController)
+    );
+  }
 }
