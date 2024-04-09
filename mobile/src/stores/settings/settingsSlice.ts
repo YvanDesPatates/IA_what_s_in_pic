@@ -2,7 +2,7 @@ import {PayloadAction, createSelector, createSlice} from '@reduxjs/toolkit';
 import {Settings} from '../../types/settings';
 
 const initialState: Settings = {
-    serverUrl: 'https://71e3-163-5-23-101.ngrok-free.app/'
+    openedAlbum: null,
 };
 
 const settingsSlice = createSlice({
@@ -12,13 +12,22 @@ const settingsSlice = createSlice({
         settingsUrlChanged: (state, action: PayloadAction<string>) => {
             state.serverUrl = action.payload;
         },
+        settingsOpenedAlbumChanged: (state, action: PayloadAction<string>) => {
+            state.openedAlbum = action.payload;
+        },
     },
 });
 
-export const {settingsUrlChanged} = settingsSlice.actions;
+export const {settingsUrlChanged, settingsOpenedAlbumChanged} =
+    settingsSlice.actions;
 export default settingsSlice.reducer;
 
 export const selectSettings = createSelector(
     [(state: {settings: Settings}) => state.settings],
     settings => settings,
+);
+
+export const selectOpenedAlbum = createSelector(
+    [(state: {settings: Settings}) => state.settings],
+    settings => settings.openedAlbum,
 );
