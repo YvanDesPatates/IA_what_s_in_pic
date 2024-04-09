@@ -46,8 +46,15 @@ export abstract class MongoDAO<T extends DBModelInterface> implements DAOInterfa
         return result;
     }
 
-    delete(id: string): Promise<boolean> {
-        return Promise.resolve(id == id);
+    public async delete(id: string): Promise<boolean> {
+        try {
+            const collection = await this.getCollection();
+            await collection.deleteOne(this.getIdFilter(id));
+            return true;
+        } catch (e){
+            console.error(e);
+            return false;
+        }
     }
 
     public async getAll(): Promise<T[]> {
