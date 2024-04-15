@@ -82,6 +82,16 @@ export class ImageMongoDAO extends MongoDAO<ImageDBModel> {
         return await this.getMany({ "albumIds": { $in: [albumId] } });
     }
 
+    public async getByNameOrTags(nameOrTag: string){
+        const filter = {
+            $or: [
+                { name: { $regex: nameOrTag, $options: 'i' } },
+                { tags: { $elemMatch: { $regex: nameOrTag, $options: 'i' } } }
+            ]
+        };
+        return await this.getMany(filter);
+    }
+
 //#endregion
 
     //#region private methods

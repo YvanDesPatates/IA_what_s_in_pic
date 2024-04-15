@@ -50,6 +50,10 @@ export class ImageLogic implements LogicInterface {
   public static async getAllByAlbum(albumId: string){
     return await new ImageMongoDAO().getAllByAlbum(albumId);
   }
+
+  public static async getAllSorted(tagOrName: string){
+    return await new ImageMongoDAO().getByNameOrTags(tagOrName);
+  }
   //#endregion
 
   //#region getters

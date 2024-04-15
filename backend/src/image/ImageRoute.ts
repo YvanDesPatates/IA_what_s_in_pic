@@ -32,5 +32,11 @@ export class ImageRoute {
         isAuthenticated,
         asyncWrapper(this.imageController.getAllByAlbum, this.imageController)
     );
+
+    this.router.get(
+        "/filter/:tagOrName",
+        isAuthenticated,
+        asyncWrapper(this.imageController.getAllSorted, this.imageController)
+    );
   }
 }
