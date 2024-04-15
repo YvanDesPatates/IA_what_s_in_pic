@@ -2,6 +2,7 @@ import express, { Router } from "express";
 import { ImageController } from "./ImageController";
 import { asyncWrapper } from "../displayableErrors/asyncWrapperErrorCatchingMiddleware";
 import multer from "multer";
+import {isAuthenticated} from "../PassportAuthMiddleware";
 
 export class ImageRoute {
   private readonly router: Router = express.Router();
@@ -28,8 +29,8 @@ export class ImageRoute {
 
     this.router.get(
         "/album/:albumId",
-        this.upload.single("image"),
-        asyncWrapper(this.imageController.uploadImage, this.imageController)
+        isAuthenticated,
+        asyncWrapper(this.imageController.getAllByAlbum, this.imageController)
     );
   }
 }
