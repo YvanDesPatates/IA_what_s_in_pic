@@ -47,6 +47,9 @@ export class ImageLogic implements LogicInterface {
     new ImageMongoDAO().create(imageToCreate);
   }
 
+  public static async getAllByAlbum(albumId: string){
+    return await new ImageMongoDAO().getAllByAlbum(albumId);
+  }
   //#endregion
 
   //#region getters

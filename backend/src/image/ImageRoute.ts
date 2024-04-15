@@ -25,5 +25,11 @@ export class ImageRoute {
       this.upload.single("image"),
       asyncWrapper(this.imageController.uploadImage, this.imageController)
     );
+
+    this.router.get(
+        "/album/:albumId",
+        this.upload.single("image"),
+        asyncWrapper(this.imageController.uploadImage, this.imageController)
+    );
   }
 }

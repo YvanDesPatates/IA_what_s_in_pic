@@ -26,4 +26,9 @@ export class ImageController {
 
     res.status(201).send();
   }
+
+  public async getAllByAlbum(req: Request, res: Response){
+    const images = await ImageLogic.getAllByAlbum(req.params.albumId);
+    res.status(200).json(images);
+  }
 }

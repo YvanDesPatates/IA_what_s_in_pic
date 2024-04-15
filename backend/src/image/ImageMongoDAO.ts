@@ -78,6 +78,10 @@ export class ImageMongoDAO extends MongoDAO<ImageDBModel> {
         return super.delete(id);
     }
 
+    public async getAllByAlbum(albumId: string){
+        return await this.getMany({ "albumIds": { $in: [albumId] } });
+    }
+
 //#endregion
 
     //#region private methods
