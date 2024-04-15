@@ -7,7 +7,7 @@ export class AlbumJsonDAO extends JsonDAO<AlbumDBModel> {
     }
 
     protected compareElementToId(element: AlbumDBModel, id: string): boolean {
-        return element.id === id;
+        return element._id === id;
     }
 
     protected parseAnyFromDB(objectToParse: any): AlbumDBModel {
@@ -18,11 +18,11 @@ export class AlbumJsonDAO extends JsonDAO<AlbumDBModel> {
     create(newElement: AlbumDBModel): AlbumDBModel {
         const albums = this.getAll();
         if (albums.length > 0) {
-            const albumWithMaxId = albums.reduce((prev, current) => (prev && parseInt(<string>prev.id) > parseInt(<string>current.id)) ? prev : current);
-            const newId = parseInt(<string>albumWithMaxId.id) + 1;
-            newElement.id = newId.toString();
+            const albumWithMaxId = albums.reduce((prev, current) => (prev && parseInt(<string>prev._id) > parseInt(<string>current._id)) ? prev : current);
+            const newId = parseInt(<string>albumWithMaxId._id) + 1;
+            newElement._id = newId.toString();
         } else {
-            newElement.id = "1";
+            newElement._id = "1";
         }
 
         return super.create(newElement);

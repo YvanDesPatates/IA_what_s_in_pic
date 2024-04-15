@@ -46,6 +46,12 @@ export abstract class MongoDAO<T extends DBModelInterface> implements DAOInterfa
         return result;
     }
 
+    public async update(id: string, updated: T): Promise<T>{
+        const collection = await this.getCollection();
+        await collection.updateOne(this.getIdFilter(id), { $set: updated });
+        return updated;
+    }
+
     public async delete(id: string): Promise<boolean> {
         try {
             const collection = await this.getCollection();

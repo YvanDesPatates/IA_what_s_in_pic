@@ -57,8 +57,9 @@ export class AlbumLogic implements LogicInterface {
 
   public async update(id: string): Promise<AlbumLogic> {
     await AlbumLogic.assertIdExistsInDatabase(this._albumDAO, id);
-    await this._albumDAO.delete(id.toString());
-    return await this.create();
+    this._id = id;
+    const updated = await this._albumDAO.update(id, this.toDBModel());
+    return updated.toLogic();
   }
   //#endregion
 
