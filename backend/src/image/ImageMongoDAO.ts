@@ -51,8 +51,6 @@ export class ImageMongoDAO extends MongoDAO<ImageDBModel> {
         }
         const savedImageBytes = newElement.imageBytes;
         newElement.imageBytes = undefined;
-        console.log("DAO");
-        console.log(newElement);
         const createdElement = await super.create(newElement);
 
         if (!createdElement.id) {

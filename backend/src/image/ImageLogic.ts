@@ -35,8 +35,6 @@ export class ImageLogic implements LogicInterface {
   }
 
   create(): void {
-    console.log("logic");
-    console.log(this.albums);
     const imageToCreate = new ImageDBModel(
       this.imageBytes,
       this.name,
