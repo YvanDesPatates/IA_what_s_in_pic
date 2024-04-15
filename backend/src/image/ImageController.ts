@@ -11,13 +11,15 @@ export class ImageController {
 
     // Convert buffer to number[]
     const imageBytes = Array.from(req.file?.buffer ?? Buffer.alloc(0));    
+    const albums = JSON.parse(req.body.albums);
+    const tags = JSON.parse(req.body.tags);
 
     const imageToUpload = new ImageLogic(
       req.body.name,
       req.body.date,
       account.email,
-      req.body.albums,
-      req.body.tags,
+      albums,
+      tags,
       undefined,
       imageBytes
     );
@@ -25,5 +27,10 @@ export class ImageController {
     imageToUpload.create();
 
     res.status(201).send();
+  }
+
+  public async getAllByAlbum(req: Request, res: Response){
+    const images = await ImageLogic.getAllByAlbum(req.params.albumId);
+    res.status(200).json(images);
   }
 }

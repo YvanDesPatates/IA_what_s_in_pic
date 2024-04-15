@@ -51,6 +51,8 @@ export class ImageMongoDAO extends MongoDAO<ImageDBModel> {
         }
         const savedImageBytes = newElement.imageBytes;
         newElement.imageBytes = undefined;
+        console.log("DAO");
+        console.log(newElement);
         const createdElement = await super.create(newElement);
 
         if (!createdElement.id) {
@@ -76,6 +78,10 @@ export class ImageMongoDAO extends MongoDAO<ImageDBModel> {
         fs.rmSync(this.getImagePath(id));
 
         return super.delete(id);
+    }
+
+    public async getAllByAlbum(albumId: string){
+        return await this.getMany({ "albumIds": { $in: [albumId] } });
     }
 
 //#endregion

@@ -58,8 +58,12 @@ export abstract class MongoDAO<T extends DBModelInterface> implements DAOInterfa
     }
 
     public async getAll(): Promise<T[]> {
+        return await this.getMany({});
+    }
+
+    protected async getMany(filter: object){
         const collection = await this.getCollection();
-        const result = await collection.find({}).toArray();
+        const result = await collection.find(filter).toArray();
         return result.map(result => this.parseAnyFromDB(result));
     }
 
