@@ -21,15 +21,15 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ADMIN_PASSWORD}
       ME_CONFIG_MONGODB_URL: ${MONGODB_URL}
 
-  api:
-    build : ./backend
-    container_name : api_backend
-    env_file:
-      - .env
-    volumes:
-      - ./backend/data:/app/data
-    ports:
-      - ${PORT}:${PORT}
+  # api:
+  #   build : ./backend
+  #   container_name : api_backend
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./backend/data:/app/data
+  #   ports:
+  #     - ${PORT}:${PORT}
 
 volumes:
   mongo-volume:
