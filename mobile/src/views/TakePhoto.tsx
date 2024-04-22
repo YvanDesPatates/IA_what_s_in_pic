@@ -159,6 +159,7 @@ const TakePhoto = ({navigation}: TakePhotoProps) => {
 
                 await loadPhoto(photo.path, true);
                 // Compress the image (good balance between quality and size)
+                //un appel a ma fonction python
                 const compressedImage = await ImageResizer.createResizedImage(
                     'file://' + photo.path,
                     photo.width,
