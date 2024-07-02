@@ -1,13 +1,9 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import session from "express-session";
-import { AccountRoute } from "./account/AccountRoute";
 import { errorHandlerMiddleware } from "./displayableErrors/ErrorHandlerMiddleware";
 import { ParsingResponseBodyMiddleware } from "./ParsingResponseBodyMiddleware";
-import { initPassport } from "./PassportAuthMiddleware";
-import passport from "passport";
-import { AlbumRoute } from "./album/AlbumRoute";
 import {ImageRoute} from "./image/ImageRoute";
 
 dotenv.config({ path: "../.env" });
@@ -29,37 +25,13 @@ app.use(
     saveUninitialized: false,
   })
 );
-initPassport(app);
-
-const accountRoute = new AccountRoute();
-const albumRoute = new AlbumRoute();
 const imageRoute = new ImageRoute();
 
-app.use("/api/accounts", accountRoute.getRouter());
-app.use("/api/albums", albumRoute.getRouter());
 app.use("/api/images", imageRoute.getRouter());
-
-
-app.post(
-  "/api/login",
-  passport.authenticate("local"),
-  async (req: Request, res: Response) => {
-    res.status(200).json(req.user);
-  }
-);
-
-app.post("/api/logout", (req: Request, res: Response) => {
-  req.logout(function (err) {
-    if (err) {
-      res.status(500).json({ message: "Error logging out" });
-    }
-    res.status(200).json({ message: "Logged out" });
-  });
-});
 
 app.get("/", (req, res) => {
   res?.send({
-    message: "Hello World",
+    message: "Hi, it's me. You're on an API that tell you an element there is in your picture if you send it, thanks to an IA model prediction",
   });
 });
 
