@@ -27,7 +27,7 @@ app.use(
 );
 const imageRoute = new ImageRoute();
 
-app.use("/api/images", imageRoute.getRouter());
+app.use("/", imageRoute.getRouter());
 
 app.get("/", (req, res) => {
   res?.send({
