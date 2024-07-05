@@ -37,7 +37,7 @@ npx expo start
 
 in the terminal that launched the frontend app, press W. It will open a web window with the app running.
 
-### launch the app on an android device
+### launch the app on an android/IOS device
 
 the localhost network will not work on your smartphone, so you need to connect to another network. 
 I use ngrok for that. [See the doc ton install it](https://dashboard.ngrok.com/get-started/setup/linux)
