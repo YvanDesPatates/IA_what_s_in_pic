@@ -6,7 +6,7 @@ import { errorHandlerMiddleware } from "./displayableErrors/ErrorHandlerMiddlewa
 import { ParsingResponseBodyMiddleware } from "./ParsingResponseBodyMiddleware";
 import {ImageRoute} from "./image/ImageRoute";
 
-dotenv.config({ path: "../.env" });
+dotenv.config();
 const port = process.env.PORT ?? 3000;
 const app = express();
 

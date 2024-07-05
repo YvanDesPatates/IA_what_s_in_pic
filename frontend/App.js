@@ -13,7 +13,7 @@ export default function App() {
     const [imageToShow, setimageToShow] = useState();
     const [imageToSend, setimageToSend] = useState();
     const [prediction, setPrediction] = useState("make your first prediction !")
-    const base_url = "https://b1d0-147-99-27-201.ngrok-free.app"
+    const base_url = process.env.EXPO_PUBLIC_BASE_URL;
     const url = base_url+'/predict';
 
     /**
