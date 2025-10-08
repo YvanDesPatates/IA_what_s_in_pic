@@ -15,7 +15,11 @@ export class ImageController {
         const binaryData = Buffer.from(base64Image.replace(/^data:[a-zA-Z]+\/[a-zA-Z0-9-.+]*;base64,/, ''), 'base64');
 
         // Write the buffer to a temporary file to be processed by the Python script
-        const tempImagePath = path.join(__dirname, "../uploads", `${Date.now()}tmp.webp`);
+        const uploadsDirPath = path.join(__dirname, "../uploads");
+        if (!fs.existsSync(uploadsDirPath)) {
+            fs.mkdirSync(uploadsDirPath, { recursive: true });
+        }
+        const tempImagePath = path.join(uploadsDirPath, `${Date.now()}tmp.webp`);
         fs.writeFileSync(tempImagePath, binaryData);
 
         const outputName = 'results.txt';
