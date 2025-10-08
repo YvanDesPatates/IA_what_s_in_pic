@@ -27,6 +27,22 @@ then update your dependencies :
 npm install --prefix ./frontend
 npm install --prefix ./backend
 ```
+
+### ⚠️ Important: Python virtual environment (venv)
+
+This project expects you to create a Python virtual environment before installing the backend Python packages.
+
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+Notes:
+- `ImageController` will prefer `./backend/venv/bin/python`, then fall back to `python3`.
+- `.env` files are used to configure the Node server (backend and frontend). They do not install Python packages. Use `pip install -r backend/requirements.txt` inside an activated venv to install required Python packages.
+
 ### 🌐 launch the app in the browser
 
 ---

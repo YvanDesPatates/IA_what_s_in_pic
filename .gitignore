@@ -1,3 +1,5 @@
 # environnement variables
 */.env
 .idea
+# python virtualenvs
+backend/venv/
